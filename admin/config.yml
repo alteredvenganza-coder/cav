@@ -1,0 +1,43 @@
+backend:
+  name: github
+  repo: alteredvenganza-coder/cav
+  branch: main
+  base_url: https://cav-world.vercel.app
+  auth_endpoint: api/auth
+
+publish_mode: simple
+media_folder: "media"
+public_folder: "/media"
+
+collections:
+  - name: site
+    label: Sito
+    files:
+      - name: content
+        label: Contenuti home
+        file: data/site.json
+        format: json
+        fields:
+          - label: Countdown
+            name: countdown
+            widget: object
+            fields:
+              - { label: Etichetta, name: label, widget: string }
+              - { label: "Data target (ISO, es. 2026-05-22T00:00:00)", name: target, widget: datetime, format: "YYYY-MM-DDTHH:mm:ss", date_format: "YYYY-MM-DD", time_format: "HH:mm", picker_utc: false }
+          - label: Subheader
+            name: subheader
+            widget: object
+            fields:
+              - { label: Kicker, name: kicker, widget: string }
+              - { label: Titolo, name: title, widget: string }
+          - label: Navigazione
+            name: nav
+            widget: object
+            fields:
+              - { label: "Testo BACK", name: back, widget: string }
+              - { label: "Testo SHOP", name: shop, widget: string }
+          - label: Card carosello
+            name: cards
+            widget: list
+            fields:
+              - { label: Etichetta, name: label, widget: string }

@@ -198,6 +198,70 @@
       color: var(--off-white);
     }
 
+    /* ===== COUNTDOWN ===== */
+    .countdown {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      margin-top: 18px;
+      flex-shrink: 0;
+      pointer-events: none;
+    }
+
+    .countdown-label {
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.45em;
+      text-transform: uppercase;
+      color: var(--warm-gray);
+    }
+
+    .countdown-timer {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+    }
+
+    .countdown-unit {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-width: 44px;
+    }
+
+    .countdown-value {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 28px;
+      font-weight: 500;
+      line-height: 1;
+      color: var(--off-white);
+      font-variant-numeric: tabular-nums;
+      letter-spacing: 0.02em;
+    }
+
+    .countdown-name {
+      margin-top: 6px;
+      font-size: 9px;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--warm-gray);
+    }
+
+    .countdown-sep {
+      font-size: 22px;
+      line-height: 1;
+      color: var(--warm-gray);
+      padding-top: 2px;
+    }
+
+    @media (max-width: 480px) {
+      .countdown-value { font-size: 22px; }
+      .countdown-unit { min-width: 36px; }
+      .countdown-timer { gap: 10px; }
+      .countdown { margin-top: 14px; gap: 8px; }
+    }
+
     /* ===== CAROUSEL SECTION ===== */
     .carousel-section {
       display: flex;
@@ -664,6 +728,20 @@
       <span class="subheader-title">UTOPIA &nbsp; WORLD</span>
     </div>
 
+    <!-- Countdown -->
+    <div class="countdown fade-in fade-in-delay-2" id="countdown" data-target="2026-05-22T00:00:00" aria-live="polite">
+      <span class="countdown-label" id="countdownLabel">SINGLE RELEASE</span>
+      <div class="countdown-timer">
+        <div class="countdown-unit"><span class="countdown-value" id="cdDays">00</span><span class="countdown-name">Days</span></div>
+        <span class="countdown-sep">:</span>
+        <div class="countdown-unit"><span class="countdown-value" id="cdHours">00</span><span class="countdown-name">Hrs</span></div>
+        <span class="countdown-sep">:</span>
+        <div class="countdown-unit"><span class="countdown-value" id="cdMinutes">00</span><span class="countdown-name">Min</span></div>
+        <span class="countdown-sep">:</span>
+        <div class="countdown-unit"><span class="countdown-value" id="cdSeconds">00</span><span class="countdown-name">Sec</span></div>
+      </div>
+    </div>
+
     <!-- Carousel -->
     <section class="carousel-section" aria-label="Featured content carousel">
       <div class="carousel-track-wrapper">
@@ -805,6 +883,72 @@
       // ───────────────────────────────────────────────
       const isMobile = () => window.matchMedia('(max-width: 768px)').matches;
       const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      // ───────────────────────────────────────────────
+      // CMS CONTENT LOADER
+      // ───────────────────────────────────────────────
+      function applyContent(data) {
+        if (!data) return;
+        const set = (sel, txt) => { const el = document.querySelector(sel); if (el && txt != null) el.textContent = txt; };
+        if (data.nav) {
+          set('.nav-side', data.nav.back);
+          set('.nav-side-shop', data.nav.shop);
+        }
+        if (data.subheader) {
+          set('.subheader-explore', data.subheader.kicker);
+          const t = document.querySelector('.subheader-title');
+          if (t && data.subheader.title) t.innerHTML = data.subheader.title.split(' ').join('&nbsp; ');
+        }
+        if (data.countdown) {
+          const root = document.getElementById('countdown');
+          if (root && data.countdown.target) root.dataset.target = data.countdown.target;
+          set('#countdownLabel', data.countdown.label);
+        }
+        if (Array.isArray(data.cards)) {
+          const labels = document.querySelectorAll('.card .card-label');
+          data.cards.forEach((c, i) => { if (labels[i] && c.label) labels[i].textContent = c.label; });
+        }
+      }
+
+      // Fetch CMS data, then start countdown (so it uses the latest target)
+      fetch('data/site.json', { cache: 'no-store' })
+        .then(r => r.ok ? r.json() : null)
+        .then(applyContent)
+        .catch(() => {})
+        .finally(initCountdown);
+
+      // ───────────────────────────────────────────────
+      // COUNTDOWN
+      // ───────────────────────────────────────────────
+      function initCountdown() {
+        const root = document.getElementById('countdown');
+        if (!root) return;
+        const target = new Date(root.dataset.target).getTime();
+        if (Number.isNaN(target)) return;
+
+        const dEl = document.getElementById('cdDays');
+        const hEl = document.getElementById('cdHours');
+        const mEl = document.getElementById('cdMinutes');
+        const sEl = document.getElementById('cdSeconds');
+        const pad = (n) => String(Math.max(0, n)).padStart(2, '0');
+
+        function tick() {
+          const diff = target - Date.now();
+          if (diff <= 0) {
+            dEl.textContent = hEl.textContent = mEl.textContent = sEl.textContent = '00';
+            const label = document.getElementById('countdownLabel');
+            if (label) label.textContent = 'OUT NOW';
+            return;
+          }
+          const s = Math.floor(diff / 1000);
+          dEl.textContent = pad(Math.floor(s / 86400));
+          hEl.textContent = pad(Math.floor((s % 86400) / 3600));
+          mEl.textContent = pad(Math.floor((s % 3600) / 60));
+          sEl.textContent = pad(s % 60);
+        }
+        tick();
+        setInterval(tick, 1000);
+      }
 
       // ───────────────────────────────────────────────
       // CAROUSEL STATE
