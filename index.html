@@ -17,8 +17,11 @@
 
     :root {
       --black: #000000;
+      --ink: #0a0908;
       --off-white: #f0ede8;
       --warm-gray: #8a8074;
+      --dim: rgba(240, 237, 232, 0.45);
+      --line: rgba(240, 237, 232, 0.18);
       --accent: #f0ede8;
       --ease: cubic-bezier(0.25, 0.46, 0.45, 0.94);
       --duration: 0.4s;
@@ -49,19 +52,17 @@
       position: fixed;
       inset: 0;
       z-index: 0;
-      background-image: url('https://images.unsplash.com/photo-1507400492013-162706c8c05e?w=1920&q=80');
-      background-size: cover;
-      background-position: center;
-      background-repeat: no-repeat;
-      transform: scale(1.05);
-      filter: blur(1px);
+      background:
+        radial-gradient(ellipse 80% 60% at 50% 35%, #1a1410 0%, #0a0807 55%, #000 100%);
     }
 
     .bg-overlay {
       position: fixed;
       inset: 0;
       z-index: 1;
-      background: rgba(0, 0, 0, 0.65);
+      background:
+        linear-gradient(180deg, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0) 30%, rgba(0,0,0,0) 70%, rgba(0,0,0,0.7) 100%);
+      pointer-events: none;
     }
 
     /* Vignette */
@@ -69,7 +70,7 @@
       position: fixed;
       inset: 0;
       z-index: 2;
-      background: radial-gradient(ellipse at center, transparent 30%, rgba(0,0,0,0.8) 100%);
+      background: radial-gradient(ellipse at center, transparent 35%, rgba(0,0,0,0.85) 100%);
       pointer-events: none;
     }
 
@@ -171,31 +172,28 @@
       filter: brightness(1.1) drop-shadow(0 0 15px rgba(255, 255, 255, 0.15));
     }
 
-    /* ===== SUBHEADER ===== */
-    .subheader {
+    /* ===== SECTION INDICATOR ===== */
+    .section-indicator {
       display: flex;
-      flex-direction: column;
       align-items: center;
-      gap: 6px;
+      gap: 18px;
       pointer-events: none;
       flex-shrink: 0;
-      margin-top: 20px;
+      margin-top: 28px;
     }
 
-    .subheader-explore {
+    .section-indicator-line {
+      width: 36px;
+      height: 1px;
+      background: var(--line);
+    }
+
+    .section-indicator-label {
       font-size: 10px;
-      font-weight: 400;
-      letter-spacing: 0.4em;
+      font-weight: 500;
+      letter-spacing: 0.45em;
       text-transform: uppercase;
       color: var(--warm-gray);
-    }
-
-    .subheader-title {
-      font-size: 16px;
-      font-weight: 600;
-      letter-spacing: 0.55em;
-      text-transform: uppercase;
-      color: var(--off-white);
     }
 
     /* ===== CAROUSEL SECTION ===== */
@@ -276,75 +274,128 @@
       width: 100%;
       height: 100%;
       object-fit: cover;
+      object-position: center;
       display: block;
       pointer-events: none;
+      background: #0a0a0a;
     }
 
-    .card-shop-overlay {
+    /* Product card: object-fit contain so the t-shirt isn't cropped */
+    .card-product {
+      background: radial-gradient(ellipse at center, #1d1814 0%, #0a0807 75%);
+    }
+
+    .card-product img {
+      object-fit: contain;
+      padding: 14% 12% 18%;
+      background: transparent;
+    }
+
+    /* Unified gradient + content overlay for every card */
+    .card-overlay {
       position: absolute;
       inset: 0;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: flex-end;
-      padding-bottom: 36px;
-      background: linear-gradient(to top, rgba(0,0,0,0.72) 0%, transparent 50%);
+      pointer-events: none;
+      background:
+        linear-gradient(180deg, rgba(0,0,0,0.45) 0%, rgba(0,0,0,0) 35%, rgba(0,0,0,0) 55%, rgba(0,0,0,0.85) 100%);
     }
 
-    .card-shop-btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      padding: 12px 44px;
-      border: 1px solid rgba(240, 237, 232, 0.8);
-      border-radius: 100px;
-      background: transparent;
-      color: var(--off-white);
-      font-family: 'Space Grotesk', sans-serif;
-      font-size: 11px;
-      font-weight: 600;
-      letter-spacing: 0.45em;
-      text-transform: uppercase;
-      cursor: pointer;
-      text-decoration: none;
-      margin-top: 14px;
-      transition:
-        background var(--duration) var(--ease),
-        color var(--duration) var(--ease);
-    }
-
-    .card-shop-btn:hover {
-      background: var(--off-white);
-      color: var(--black);
-    }
-
-    .card-label {
+    .card-number {
       position: absolute;
-      bottom: 16px;
-      left: 0;
-      right: 0;
-      text-align: center;
-      font-size: 9px;
-      font-weight: 600;
-      letter-spacing: 0.5em;
-      text-transform: uppercase;
-      color: rgba(240, 237, 232, 0.7);
-      background: linear-gradient(to top, rgba(0,0,0,0.6) 0%, transparent 100%);
-      padding: 30px 0 14px;
-    }
-
-    /* ===== CARD LABEL BELOW CAROUSEL ===== */
-    .active-label {
+      top: 18px;
+      left: 20px;
       font-size: 10px;
       font-weight: 500;
-      letter-spacing: 0.5em;
+      letter-spacing: 0.4em;
+      color: rgba(240, 237, 232, 0.7);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .card-kicker {
+      position: absolute;
+      top: 18px;
+      right: 20px;
+      font-size: 9px;
+      font-weight: 500;
+      letter-spacing: 0.4em;
       text-transform: uppercase;
-      color: var(--warm-gray);
-      margin-top: 18px;
-      min-height: 16px;
-      transition: opacity 0.3s var(--ease);
-      pointer-events: none;
-      flex-shrink: 0;
+      color: rgba(240, 237, 232, 0.55);
+    }
+
+    .card-meta {
+      position: absolute;
+      left: 20px;
+      right: 20px;
+      bottom: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .card-title {
+      font-size: 22px;
+      font-weight: 600;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--off-white);
+      line-height: 1;
+    }
+
+    .card-sub {
+      font-size: 10px;
+      font-weight: 400;
+      letter-spacing: 0.35em;
+      text-transform: uppercase;
+      color: rgba(240, 237, 232, 0.6);
+    }
+
+    .card-cta-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 4px;
+      opacity: 0;
+      transform: translateY(6px);
+      transition: opacity 0.5s var(--ease) 0.1s, transform 0.5s var(--ease) 0.1s;
+    }
+
+    .card.active .card-cta-row {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .card-line {
+      flex: 1;
+      height: 1px;
+      background: var(--line);
+      margin-right: 14px;
+    }
+
+    .card-cta {
+      pointer-events: auto;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.4em;
+      text-transform: uppercase;
+      color: var(--off-white);
+      text-decoration: none;
+      padding-bottom: 2px;
+      border-bottom: 1px solid rgba(240, 237, 232, 0.5);
+      transition: border-color var(--duration) var(--ease), color var(--duration) var(--ease);
+    }
+
+    .card-cta:hover {
+      border-color: var(--off-white);
+    }
+
+    .card-cta .arrow {
+      display: inline-block;
+      margin-left: 6px;
+      transition: transform var(--duration) var(--ease);
+    }
+
+    .card-cta:hover .arrow {
+      transform: translateX(4px);
     }
 
     /* ===== BOTTOM BUTTON ===== */
@@ -387,26 +438,41 @@
       fill: none;
     }
 
-    /* ===== DOTS ===== */
-    .carousel-dots {
+    /* ===== PROGRESS ===== */
+    .carousel-progress {
       display: flex;
-      gap: 6px;
-      margin-top: 12px;
+      align-items: center;
+      gap: 14px;
+      margin-top: 26px;
       pointer-events: auto;
       flex-shrink: 0;
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.35em;
+      color: var(--warm-gray);
+      font-variant-numeric: tabular-nums;
     }
 
-    .dot {
-      width: 4px;
-      height: 4px;
-      border-radius: 50%;
-      background: var(--warm-gray);
-      transition: background var(--duration) var(--ease), transform var(--duration) var(--ease);
+    .progress-track {
+      width: 180px;
+      height: 1px;
+      background: var(--line);
+      position: relative;
+      overflow: hidden;
     }
 
-    .dot.active {
+    .progress-fill {
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 100%;
       background: var(--off-white);
-      transform: scale(1.4);
+      width: 20%;
+      transition: width 0.55s var(--ease);
+    }
+
+    .progress-count .current {
+      color: var(--off-white);
     }
 
     /* ===== MENU OVERLAY ===== */
@@ -569,6 +635,13 @@
         height: 78vw;
       }
 
+      .card-title { font-size: 18px; }
+      .card-sub, .card-number, .card-kicker { font-size: 9px; }
+      .card-meta { left: 16px; right: 16px; bottom: 16px; }
+      .card-number, .card-kicker { top: 14px; }
+      .card-number { left: 16px; }
+      .card-kicker { right: 16px; }
+
       .bottom-btn-wrap {
         padding-bottom: 24px;
       }
@@ -587,8 +660,17 @@
         min-width: 180px;
       }
 
-      .subheader-title {
-        font-size: 13px;
+      .section-indicator-label {
+        font-size: 9px;
+        letter-spacing: 0.35em;
+      }
+
+      .section-indicator-line {
+        width: 22px;
+      }
+
+      .progress-track {
+        width: 130px;
       }
     }
 
@@ -658,10 +740,11 @@
       <a href="shop.html" class="nav-side-shop" aria-label="Shop">SHOP</a>
     </nav>
 
-    <!-- Subheader -->
-    <div class="subheader fade-in fade-in-delay-1" aria-hidden="true">
-      <span class="subheader-explore">Explore</span>
-      <span class="subheader-title">UTOPIA &nbsp; WORLD</span>
+    <!-- Section indicator -->
+    <div class="section-indicator fade-in fade-in-delay-1" aria-hidden="true">
+      <span class="section-indicator-line"></span>
+      <span class="section-indicator-label">CAV &nbsp; / &nbsp; WORLD</span>
+      <span class="section-indicator-line"></span>
     </div>
 
     <!-- Carousel -->
@@ -669,29 +752,45 @@
       <div class="carousel-track-wrapper">
         <div class="carousel-track" id="carouselTrack" role="list">
 
-          <!-- Card 0: 4X4 ALBUM -->
-          <div class="card" role="listitem" data-index="0" tabindex="0" aria-label="4X4">
+          <!-- Card 0: 4X4 -->
+          <div class="card" role="listitem" data-index="0" tabindex="0" aria-label="4X4 album">
             <img
               src="https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c17?w=800&q=80"
               alt="4X4 Album Cover"
               loading="eager"
               decoding="async"
-              style="object-fit: cover; background: #0a0a0a;"
             />
+            <div class="card-overlay"></div>
+            <span class="card-number">01</span>
+            <span class="card-kicker">Album</span>
+            <div class="card-meta">
+              <span class="card-sub">New release</span>
+              <span class="card-title">4 × 4</span>
+              <div class="card-cta-row">
+                <span class="card-line"></span>
+                <a href="album.html" class="card-cta">Listen <span class="arrow">→</span></a>
+              </div>
+            </div>
           </div>
 
           <!-- Card 1: SHOP — T-shirt product -->
-          <div class="card" role="listitem" data-index="1" tabindex="0" aria-label="Shop">
+          <div class="card card-product" role="listitem" data-index="1" tabindex="0" aria-label="Shop">
             <img
               src="tshirt.png"
-              alt="The Road For Cav McKnigh Tee"
+              alt="The Road For Cav McKnight Tee"
               loading="lazy"
               decoding="async"
-              style="object-fit: contain; background: #0a0a0a;"
             />
-            <div class="card-shop-overlay">
-              <span style="font-size:9px;letter-spacing:0.45em;color:rgba(240,237,232,0.65);text-transform:uppercase;">The Road For Cav McKnigh</span>
-              <a href="shop.html" class="card-shop-btn">SHOP NOW</a>
+            <div class="card-overlay"></div>
+            <span class="card-number">02</span>
+            <span class="card-kicker">Shop</span>
+            <div class="card-meta">
+              <span class="card-sub">Apparel</span>
+              <span class="card-title">The Road Tee</span>
+              <div class="card-cta-row">
+                <span class="card-line"></span>
+                <a href="shop.html" class="card-cta">Shop <span class="arrow">→</span></a>
+              </div>
             </div>
           </div>
 
@@ -703,7 +802,17 @@
               loading="lazy"
               decoding="async"
             />
-            <div class="card-label">Experience</div>
+            <div class="card-overlay"></div>
+            <span class="card-number">03</span>
+            <span class="card-kicker">Live</span>
+            <div class="card-meta">
+              <span class="card-sub">Immersive</span>
+              <span class="card-title">Experience</span>
+              <div class="card-cta-row">
+                <span class="card-line"></span>
+                <a href="experience.html" class="card-cta">Enter <span class="arrow">→</span></a>
+              </div>
+            </div>
           </div>
 
           <!-- Card 3: TOUR -->
@@ -714,7 +823,17 @@
               loading="lazy"
               decoding="async"
             />
-            <div class="card-label">Tour</div>
+            <div class="card-overlay"></div>
+            <span class="card-number">04</span>
+            <span class="card-kicker">2026</span>
+            <div class="card-meta">
+              <span class="card-sub">On the road</span>
+              <span class="card-title">Tour</span>
+              <div class="card-cta-row">
+                <span class="card-line"></span>
+                <a href="tour.html" class="card-cta">Dates <span class="arrow">→</span></a>
+              </div>
+            </div>
           </div>
 
           <!-- Card 4: WORLD -->
@@ -725,17 +844,30 @@
               loading="lazy"
               decoding="async"
             />
-            <div class="card-label">World</div>
+            <div class="card-overlay"></div>
+            <span class="card-number">05</span>
+            <span class="card-kicker">Universe</span>
+            <div class="card-meta">
+              <span class="card-sub">Inside the</span>
+              <span class="card-title">World</span>
+              <div class="card-cta-row">
+                <span class="card-line"></span>
+                <a href="world.html" class="card-cta">Explore <span class="arrow">→</span></a>
+              </div>
+            </div>
           </div>
 
         </div>
       </div>
 
-      <!-- Active label -->
-      <div class="active-label fade-in fade-in-delay-2" id="activeLabel" aria-live="polite">4X4 VIDEO</div>
-
-      <!-- Dots -->
-      <div class="carousel-dots fade-in fade-in-delay-2" id="carouselDots" role="tablist" aria-label="Carousel navigation"></div>
+      <!-- Progress -->
+      <div class="carousel-progress fade-in fade-in-delay-2" role="tablist" aria-label="Carousel progress">
+        <span class="progress-count"><span class="current" id="progressCurrent">01</span></span>
+        <div class="progress-track" id="progressTrack">
+          <div class="progress-fill" id="progressFill"></div>
+        </div>
+        <span class="progress-count" id="progressTotal">05</span>
+      </div>
     </section>
 
     <!-- Bottom button -->
@@ -809,13 +941,12 @@
       // ───────────────────────────────────────────────
       // CAROUSEL STATE
       // ───────────────────────────────────────────────
-      const track       = document.getElementById('carouselTrack');
-      const dotsWrap    = document.getElementById('carouselDots');
-      const activeLabel = document.getElementById('activeLabel');
-      const cards       = Array.from(track.querySelectorAll('.card'));
-      const CARD_COUNT  = cards.length;
-
-      const LABELS = ['4X4 VIDEO', 'SHOP', 'EXPERIENCE', 'TOUR', 'WORLD'];
+      const track           = document.getElementById('carouselTrack');
+      const progressFill    = document.getElementById('progressFill');
+      const progressCurrent = document.getElementById('progressCurrent');
+      const progressTotal   = document.getElementById('progressTotal');
+      const cards           = Array.from(track.querySelectorAll('.card'));
+      const CARD_COUNT      = cards.length;
 
       let currentIndex = 0;
       let targetOffset = 0;
@@ -828,28 +959,15 @@
       let lastWheelTime = 0;
       let rafId = null;
 
-      // ── Build dots
-      function buildDots() {
-        dotsWrap.innerHTML = '';
-        cards.forEach((_, i) => {
-          const d = document.createElement('button');
-          d.className = 'dot' + (i === 0 ? ' active' : '');
-          d.setAttribute('role', 'tab');
-          d.setAttribute('aria-selected', i === 0 ? 'true' : 'false');
-          d.setAttribute('aria-label', `Go to ${LABELS[i]}`);
-          d.addEventListener('click', () => goTo(i));
-          dotsWrap.appendChild(d);
-        });
+      const pad2 = (n) => String(n).padStart(2, '0');
+
+      function updateProgress() {
+        const ratio = (currentIndex + 1) / CARD_COUNT;
+        progressFill.style.width = `${ratio * 100}%`;
+        progressCurrent.textContent = pad2(currentIndex + 1);
       }
 
-      function updateDots() {
-        const dots = dotsWrap.querySelectorAll('.dot');
-        dots.forEach((d, i) => {
-          const active = i === currentIndex;
-          d.classList.toggle('active', active);
-          d.setAttribute('aria-selected', active ? 'true' : 'false');
-        });
-      }
+      progressTotal.textContent = pad2(CARD_COUNT);
 
       // ── Calculate the x-offset needed to center `index`
       function getOffsetForIndex(index) {
@@ -869,8 +987,7 @@
             card.classList.add('adjacent');
           }
         });
-        activeLabel.textContent = LABELS[currentIndex];
-        updateDots();
+        updateProgress();
       }
 
       // ── Smooth animation loop (spring-like interpolation)
@@ -981,7 +1098,6 @@
 
       // ── Init carousel
       function initCarousel() {
-        buildDots();
         goTo(0);
       }
 
