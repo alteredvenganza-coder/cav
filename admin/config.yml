@@ -1,7 +1,7 @@
 backend:
   name: github
   repo: alteredvenganza-coder/cav
-  branch: main
+  branch: master
   base_url: https://cav-world.vercel.app
   auth_endpoint: api/auth
 
