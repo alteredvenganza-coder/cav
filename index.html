@@ -49,12 +49,22 @@
       position: fixed;
       inset: 0;
       z-index: 0;
-      background-image: url('https://images.unsplash.com/photo-1507400492013-162706c8c05e?w=1920&q=80');
-      background-size: cover;
-      background-position: center;
-      background-repeat: no-repeat;
-      transform: scale(1.05);
-      filter: blur(1px);
+      background: #000;
+      overflow: hidden;
+    }
+
+    .bg-video {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      min-width: 100%;
+      min-height: 100%;
+      width: auto;
+      height: auto;
+      transform: translate(-50%, -50%) scale(1.05);
+      object-fit: cover;
+      filter: brightness(0.95);
+      pointer-events: none;
     }
 
     .bg-overlay {
@@ -164,9 +174,9 @@
     }
 
     .nav-logo img {
-      height: 60px;
+      height: 110px;
       width: auto;
-      max-width: 280px;
+      max-width: 460px;
       object-fit: contain;
       filter: brightness(1.1) drop-shadow(0 0 15px rgba(255, 255, 255, 0.15));
     }
@@ -633,8 +643,8 @@
       }
 
       .nav-logo img {
-        height: 48px;
-        max-width: 200px;
+        height: 80px;
+        max-width: 320px;
       }
 
       .card {
@@ -714,7 +724,11 @@
 <body>
 
   <!-- Background layers -->
-  <div class="bg-layer" role="presentation" aria-hidden="true"></div>
+  <div class="bg-layer" role="presentation" aria-hidden="true">
+    <video class="bg-video" autoplay muted loop playsinline preload="auto" poster="">
+      <source src="media/bg.mp4" type="video/mp4" />
+    </video>
+  </div>
   <div class="bg-overlay" aria-hidden="true"></div>
   <div class="bg-vignette" aria-hidden="true"></div>
   <div class="grain" aria-hidden="true"></div>
@@ -954,45 +968,69 @@
       }
 
       // ───────────────────────────────────────────────
-      // CAROUSEL STATE
+      // CAROUSEL STATE (infinite)
       // ───────────────────────────────────────────────
       const track       = document.getElementById('carouselTrack');
       const dotsWrap    = document.getElementById('carouselDots');
       const activeLabel = document.getElementById('activeLabel');
-      const cards       = Array.from(track.querySelectorAll('.card'));
-      const CARD_COUNT  = cards.length;
+      const originalCards = Array.from(track.querySelectorAll('.card'));
+      const REAL_COUNT = originalCards.length;
 
       const LABELS = ['4X4 VIDEO', 'SHOP', 'EXPERIENCE', 'TOUR', 'WORLD'];
 
-      let currentIndex = 0;
+      // ── Clone cards before and after for seamless looping
+      function buildLoop() {
+        const before = document.createDocumentFragment();
+        const after  = document.createDocumentFragment();
+        originalCards.forEach((c) => {
+          const cb = c.cloneNode(true);
+          cb.setAttribute('aria-hidden', 'true');
+          cb.removeAttribute('tabindex');
+          cb.classList.add('clone');
+          before.appendChild(cb);
+          const ca = c.cloneNode(true);
+          ca.setAttribute('aria-hidden', 'true');
+          ca.removeAttribute('tabindex');
+          ca.classList.add('clone');
+          after.appendChild(ca);
+        });
+        track.insertBefore(before, track.firstChild);
+        track.appendChild(after);
+      }
+      buildLoop();
+
+      const cards = Array.from(track.querySelectorAll('.card'));
+      const CARD_COUNT = cards.length;
+      const realIndex = (i) => ((i % REAL_COUNT) + REAL_COUNT) % REAL_COUNT;
+
+      let currentIndex = REAL_COUNT; // start on the first real card
       let targetOffset = 0;
       let currentOffset = 0;
-      let isAnimating = false;
       let isDragging = false;
       let dragStartX = 0;
       let dragStartOffset = 0;
-      let velocity = 0;
       let lastWheelTime = 0;
       let rafId = null;
 
-      // ── Build dots
+      // ── Build dots (one per real card)
       function buildDots() {
         dotsWrap.innerHTML = '';
-        cards.forEach((_, i) => {
+        for (let i = 0; i < REAL_COUNT; i++) {
           const d = document.createElement('button');
           d.className = 'dot' + (i === 0 ? ' active' : '');
           d.setAttribute('role', 'tab');
           d.setAttribute('aria-selected', i === 0 ? 'true' : 'false');
           d.setAttribute('aria-label', `Go to ${LABELS[i]}`);
-          d.addEventListener('click', () => goTo(i));
+          d.addEventListener('click', () => goTo(REAL_COUNT + i));
           dotsWrap.appendChild(d);
-        });
+        }
       }
 
       function updateDots() {
         const dots = dotsWrap.querySelectorAll('.dot');
+        const ri = realIndex(currentIndex);
         dots.forEach((d, i) => {
-          const active = i === currentIndex;
+          const active = i === ri;
           d.classList.toggle('active', active);
           d.setAttribute('aria-selected', active ? 'true' : 'false');
         });
@@ -1016,8 +1054,24 @@
             card.classList.add('adjacent');
           }
         });
-        activeLabel.textContent = LABELS[currentIndex];
+        activeLabel.textContent = LABELS[realIndex(currentIndex)];
         updateDots();
+      }
+
+      // ── Snap back to the middle band without animation when out of range
+      function snapIfNeeded() {
+        if (currentIndex < REAL_COUNT || currentIndex >= REAL_COUNT * 2) {
+          const snapped = REAL_COUNT + realIndex(currentIndex);
+          currentIndex = snapped;
+          targetOffset = getOffsetForIndex(snapped);
+          currentOffset = targetOffset;
+          track.style.transition = 'none';
+          track.style.transform = `translateX(${currentOffset}px)`;
+          // Force reflow then re-enable
+          void track.offsetWidth;
+          track.style.transition = '';
+          applyCardStates();
+        }
       }
 
       // ── Smooth animation loop (spring-like interpolation)
@@ -1027,6 +1081,7 @@
           currentOffset = targetOffset;
           track.style.transform = `translateX(${currentOffset}px)`;
           rafId = null;
+          snapIfNeeded();
           return;
         }
 
@@ -1041,15 +1096,14 @@
       }
 
       function goTo(index) {
-        if (index < 0 || index >= CARD_COUNT) return;
         currentIndex = index;
         targetOffset = getOffsetForIndex(index);
         applyCardStates();
         startAnimation();
       }
 
-      function next() { goTo(Math.min(currentIndex + 1, CARD_COUNT - 1)); }
-      function prev() { goTo(Math.max(currentIndex - 1, 0)); }
+      function next() { goTo(currentIndex + 1); }
+      function prev() { goTo(currentIndex - 1); }
 
       // ── Wheel handler
       let wheelAccum = 0;
@@ -1105,16 +1159,27 @@
         }
       });
 
-      // ── Card click to focus
+      // ── Click on a card focuses the nearest equivalent (works across clones)
+      function nearestIndexFor(realIdx) {
+        const base = currentIndex - realIndex(currentIndex);
+        const candidates = [base + realIdx - REAL_COUNT, base + realIdx, base + realIdx + REAL_COUNT];
+        return candidates.reduce((best, c) =>
+          Math.abs(c - currentIndex) < Math.abs(best - currentIndex) ? c : best
+        );
+      }
+
       cards.forEach((card, i) => {
         card.addEventListener('click', () => {
-          if (!isMobile() && i !== currentIndex) goTo(i);
+          if (isMobile()) return;
+          const target = nearestIndexFor(realIndex(i));
+          if (target !== currentIndex) goTo(target);
         });
 
         card.addEventListener('keydown', (e) => {
           if (e.key === 'Enter' || e.key === ' ') {
             e.preventDefault();
-            if (i !== currentIndex) goTo(i);
+            const target = nearestIndexFor(realIndex(i));
+            if (target !== currentIndex) goTo(target);
           }
         });
       });
@@ -1129,7 +1194,7 @@
       // ── Init carousel
       function initCarousel() {
         buildDots();
-        goTo(0);
+        goTo(REAL_COUNT);
       }
 
       // ───────────────────────────────────────────────
