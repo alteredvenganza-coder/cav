@@ -394,29 +394,25 @@
     }
 
     .card.active {
-      transform: scale(1.25);
+      transform: scale(1.4);
       opacity: 1;
-      filter: blur(0px) brightness(1.05) saturate(1.1) contrast(1.05);
+      filter: none;
       cursor: pointer;
       pointer-events: auto;
-      box-shadow:
-        0 0 0 1px rgba(240, 237, 232, 0.22),
-        0 40px 120px rgba(0, 0, 0, 0.8);
+      box-shadow: 0 40px 120px rgba(0, 0, 0, 0.7);
       z-index: 5;
     }
 
     .card.adjacent {
       transform: scale(0.7);
-      opacity: 0.55;
-      filter: blur(2px) brightness(0.7) saturate(0.75);
+      opacity: 0.5;
+      filter: blur(2px) brightness(0.65) saturate(0.7);
       pointer-events: none;
     }
 
     .card.active:hover {
-      transform: scale(1.28);
-      box-shadow:
-        0 0 0 1px rgba(240, 237, 232, 0.35),
-        0 44px 130px rgba(0, 0, 0, 0.85);
+      transform: scale(1.42);
+      box-shadow: 0 44px 130px rgba(0, 0, 0, 0.75);
     }
 
     .card img {
@@ -1093,7 +1089,7 @@
       const CARD_COUNT = cards.length;
       const realIndex = (i) => ((i % REAL_COUNT) + REAL_COUNT) % REAL_COUNT;
 
-      let currentIndex = REAL_COUNT; // start on the first real card
+      let currentIndex = REAL_COUNT + 1; // start on SHOP (real index 1)
       let targetOffset = 0;
       let currentOffset = 0;
       let isDragging = false;
@@ -1105,11 +1101,12 @@
       // ── Build dots (one per real card)
       function buildDots() {
         dotsWrap.innerHTML = '';
+        const startReal = realIndex(currentIndex);
         for (let i = 0; i < REAL_COUNT; i++) {
           const d = document.createElement('button');
-          d.className = 'dot' + (i === 0 ? ' active' : '');
+          d.className = 'dot' + (i === startReal ? ' active' : '');
           d.setAttribute('role', 'tab');
-          d.setAttribute('aria-selected', i === 0 ? 'true' : 'false');
+          d.setAttribute('aria-selected', i === startReal ? 'true' : 'false');
           d.setAttribute('aria-label', `Go to ${LABELS[i]}`);
           d.addEventListener('click', () => goTo(REAL_COUNT + i));
           dotsWrap.appendChild(d);
@@ -1287,10 +1284,11 @@
         if (e.key === 'ArrowLeft') prev();
       });
 
-      // ── Init carousel
+      // ── Init carousel (start on SHOP card — index 1 of real set)
+      const INITIAL_REAL_INDEX = 1;
       function initCarousel() {
         buildDots();
-        goTo(REAL_COUNT);
+        goTo(REAL_COUNT + INITIAL_REAL_INDEX);
       }
 
       // ───────────────────────────────────────────────
