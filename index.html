@@ -63,14 +63,46 @@
       height: 100%;
       transform: translate(-50%, -50%);
       object-fit: cover;
-      filter: grayscale(1) brightness(1) contrast(1.05);
+      filter: brightness(1) contrast(1.05);
       pointer-events: none;
+    }
+
+    /* Grayscale veil with a soft circular "hole" following the cursor */
+    .bg-grayscale {
+      position: fixed;
+      inset: 0;
+      z-index: 1;
+      pointer-events: none;
+      backdrop-filter: grayscale(1);
+      -webkit-backdrop-filter: grayscale(1);
+      --mx: 50vw;
+      --my: 50vh;
+      --hole-inner: 90px;
+      --hole-outer: 260px;
+      -webkit-mask-image:
+        radial-gradient(circle at var(--mx) var(--my),
+          transparent 0,
+          transparent var(--hole-inner),
+          #000 var(--hole-outer));
+      mask-image:
+        radial-gradient(circle at var(--mx) var(--my),
+          transparent 0,
+          transparent var(--hole-inner),
+          #000 var(--hole-outer));
+      transition: -webkit-mask-position 0.15s linear, mask-position 0.15s linear;
+    }
+
+    @media (hover: none) {
+      .bg-grayscale {
+        -webkit-mask-image: none;
+        mask-image: none;
+      }
     }
 
     .bg-overlay {
       position: fixed;
       inset: 0;
-      z-index: 1;
+      z-index: 2;
       background: rgba(0, 0, 0, 0.45);
       pointer-events: none;
     }
@@ -79,7 +111,7 @@
     .bg-vignette {
       position: fixed;
       inset: 0;
-      z-index: 2;
+      z-index: 3;
       background: radial-gradient(ellipse at center, transparent 30%, rgba(0,0,0,0.8) 100%);
       pointer-events: none;
     }
@@ -88,7 +120,7 @@
     .grain {
       position: fixed;
       inset: -50%;
-      z-index: 3;
+      z-index: 4;
       width: 200%;
       height: 200%;
       pointer-events: none;
@@ -789,6 +821,7 @@
       <source src="media/bg.mp4" type="video/mp4" />
     </video>
   </div>
+  <div class="bg-grayscale" id="bgGrayscale" aria-hidden="true"></div>
   <div class="bg-overlay" aria-hidden="true"></div>
   <div class="bg-vignette" aria-hidden="true"></div>
   <div class="grain" aria-hidden="true"></div>
@@ -966,6 +999,39 @@
       // ───────────────────────────────────────────────
       const isMobile = () => window.matchMedia('(max-width: 768px)').matches;
       const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      // ───────────────────────────────────────────────
+      // CURSOR COLOR REVEAL ON GRAYSCALE BG
+      // ───────────────────────────────────────────────
+      (function initColorReveal() {
+        const veil = document.getElementById('bgGrayscale');
+        if (!veil) return;
+        // Hover-capable only: touch devices keep the full grayscale veil
+        if (!window.matchMedia('(hover: hover)').matches) return;
+
+        let tx = window.innerWidth / 2;
+        let ty = window.innerHeight / 2;
+        let cx = tx, cy = ty;
+        let raf = null;
+
+        const tick = () => {
+          cx += (tx - cx) * 0.18;
+          cy += (ty - cy) * 0.18;
+          veil.style.setProperty('--mx', cx + 'px');
+          veil.style.setProperty('--my', cy + 'px');
+          if (Math.hypot(tx - cx, ty - cy) > 0.5) {
+            raf = requestAnimationFrame(tick);
+          } else {
+            raf = null;
+          }
+        };
+
+        window.addEventListener('pointermove', (e) => {
+          tx = e.clientX;
+          ty = e.clientY;
+          if (!raf) raf = requestAnimationFrame(tick);
+        }, { passive: true });
+      })();
 
       // ───────────────────────────────────────────────
       // BG VIDEO AUTOPLAY (mobile safe)
