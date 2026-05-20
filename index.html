@@ -330,10 +330,20 @@
       width: 100%;
       flex: 1;
       min-height: 0;
-      overflow: hidden;
       pointer-events: auto;
       padding: 20px 0 0;
       position: relative;
+    }
+
+    .carousel-track-wrapper {
+      width: 100%;
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      pointer-events: auto;
     }
 
     /* ===== NAVIGATION HINT ARROWS ===== */
@@ -384,17 +394,6 @@
       .nav-arrow svg { width: 28px; height: 28px; }
       .nav-arrow.nav-arrow-left  { left: 8px; }
       .nav-arrow.nav-arrow-right { right: 8px; }
-    }
-
-    .carousel-track-wrapper {
-      width: 100%;
-      flex: 1;
-      min-height: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      position: relative;
-      pointer-events: auto;
     }
 
     .carousel-track {
@@ -740,9 +739,11 @@
       }
 
       .card {
-        width: 78vw;
-        height: 78vw;
+        width: 55vw;
+        height: 55vw;
       }
+      .card.active { transform: scale(1.55); }
+      .card.adjacent { transform: scale(0.55); }
 
       .bottom-btn-wrap {
         padding-bottom: 24px;
@@ -773,8 +774,8 @@
       }
 
       .card {
-        width: 85vw;
-        height: 85vw;
+        width: 60vw;
+        height: 60vw;
       }
     }
 
