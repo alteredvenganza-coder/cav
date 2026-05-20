@@ -49,19 +49,30 @@
       position: fixed;
       inset: 0;
       z-index: 0;
-      background-image: url('https://images.unsplash.com/photo-1507400492013-162706c8c05e?w=1920&q=80');
-      background-size: cover;
-      background-position: center;
-      background-repeat: no-repeat;
-      transform: scale(1.05);
-      filter: blur(1px);
+      background: #000;
+      overflow: hidden;
+    }
+
+    .bg-video {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      min-width: 100%;
+      min-height: 100%;
+      width: 100%;
+      height: 100%;
+      transform: translate(-50%, -50%);
+      object-fit: cover;
+      filter: brightness(1);
+      pointer-events: none;
     }
 
     .bg-overlay {
       position: fixed;
       inset: 0;
       z-index: 1;
-      background: rgba(0, 0, 0, 0.65);
+      background: rgba(0, 0, 0, 0.45);
+      pointer-events: none;
     }
 
     /* Vignette */
@@ -164,9 +175,9 @@
     }
 
     .nav-logo img {
-      height: 60px;
+      height: 110px;
       width: auto;
-      max-width: 280px;
+      max-width: 460px;
       object-fit: contain;
       filter: brightness(1.1) drop-shadow(0 0 15px rgba(255, 255, 255, 0.15));
     }
@@ -198,6 +209,79 @@
       color: var(--off-white);
     }
 
+    /* ===== COUNTDOWN ===== */
+    .countdown {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 18px;
+      margin-top: 28px;
+      flex-shrink: 0;
+      pointer-events: none;
+    }
+
+    .countdown-label {
+      font-size: 13px;
+      font-weight: 500;
+      letter-spacing: 0.5em;
+      text-transform: uppercase;
+      color: var(--warm-gray);
+    }
+
+    .countdown-timer {
+      display: flex;
+      align-items: flex-start;
+      gap: 26px;
+    }
+
+    .countdown-unit {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-width: 80px;
+    }
+
+    .countdown-value {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 64px;
+      font-weight: 500;
+      line-height: 1;
+      color: var(--off-white);
+      font-variant-numeric: tabular-nums;
+      letter-spacing: 0.02em;
+    }
+
+    .countdown-name {
+      margin-top: 12px;
+      font-size: 11px;
+      letter-spacing: 0.35em;
+      text-transform: uppercase;
+      color: var(--warm-gray);
+    }
+
+    .countdown-sep {
+      font-size: 52px;
+      line-height: 1;
+      color: var(--warm-gray);
+      padding-top: 4px;
+    }
+
+    @media (max-width: 768px) {
+      .countdown-value { font-size: 44px; }
+      .countdown-sep { font-size: 36px; }
+      .countdown-unit { min-width: 60px; }
+      .countdown-timer { gap: 16px; }
+    }
+
+    @media (max-width: 480px) {
+      .countdown-value { font-size: 34px; }
+      .countdown-sep { font-size: 28px; }
+      .countdown-unit { min-width: 48px; }
+      .countdown-timer { gap: 10px; }
+      .countdown { margin-top: 18px; gap: 12px; }
+      .countdown-label { font-size: 11px; letter-spacing: 0.4em; }
+    }
+
     /* ===== CAROUSEL SECTION ===== */
     .carousel-section {
       display: flex;
@@ -226,7 +310,7 @@
     .carousel-track {
       display: flex;
       align-items: center;
-      gap: 40px;
+      gap: 80px;
       position: relative;
       will-change: transform;
     }
@@ -241,35 +325,36 @@
       overflow: hidden;
       cursor: pointer;
       transition:
-        transform 0.6s var(--ease),
-        opacity 0.6s var(--ease),
-        filter 0.6s var(--ease),
-        box-shadow 0.6s var(--ease);
-      transform: scale(0.75);
-      opacity: 0.25;
-      filter: blur(3px);
+        transform 0.7s var(--ease),
+        opacity 0.7s var(--ease),
+        filter 0.7s var(--ease),
+        box-shadow 0.7s var(--ease);
+      transform: scale(0.55);
+      opacity: 0.18;
+      filter: blur(5px);
       pointer-events: none;
     }
 
     .card.active {
-      transform: scale(1);
+      transform: scale(1.22);
       opacity: 1;
       filter: blur(0px);
-      cursor: default;
+      cursor: pointer;
       pointer-events: auto;
-      box-shadow: 0 20px 80px rgba(0, 0, 0, 0.6);
+      box-shadow: 0 30px 100px rgba(0, 0, 0, 0.75);
+      z-index: 5;
     }
 
     .card.adjacent {
-      transform: scale(0.75);
-      opacity: 0.2;
+      transform: scale(0.7);
+      opacity: 0.4;
       filter: blur(3px);
       pointer-events: none;
     }
 
     .card.active:hover {
-      transform: scale(1.02);
-      box-shadow: 0 24px 90px rgba(0, 0, 0, 0.7);
+      transform: scale(1.25);
+      box-shadow: 0 34px 110px rgba(0, 0, 0, 0.8);
     }
 
     .card img {
@@ -560,8 +645,8 @@
       }
 
       .nav-logo img {
-        height: 48px;
-        max-width: 200px;
+        height: 80px;
+        max-width: 320px;
       }
 
       .card {
@@ -641,7 +726,11 @@
 <body>
 
   <!-- Background layers -->
-  <div class="bg-layer" role="presentation" aria-hidden="true"></div>
+  <div class="bg-layer" role="presentation" aria-hidden="true">
+    <video class="bg-video" autoplay muted loop playsinline preload="auto" poster="">
+      <source src="media/bg.mp4" type="video/mp4" />
+    </video>
+  </div>
   <div class="bg-overlay" aria-hidden="true"></div>
   <div class="bg-vignette" aria-hidden="true"></div>
   <div class="grain" aria-hidden="true"></div>
@@ -658,10 +747,18 @@
       <a href="shop.html" class="nav-side-shop" aria-label="Shop">SHOP</a>
     </nav>
 
-    <!-- Subheader -->
-    <div class="subheader fade-in fade-in-delay-1" aria-hidden="true">
-      <span class="subheader-explore">Explore</span>
-      <span class="subheader-title">UTOPIA &nbsp; WORLD</span>
+    <!-- Countdown -->
+    <div class="countdown fade-in fade-in-delay-2" id="countdown" data-target="2026-05-22T00:00:00" aria-live="polite">
+      <span class="countdown-label" id="countdownLabel">CAV McKNIGHT</span>
+      <div class="countdown-timer">
+        <div class="countdown-unit"><span class="countdown-value" id="cdDays">00</span><span class="countdown-name">Days</span></div>
+        <span class="countdown-sep">:</span>
+        <div class="countdown-unit"><span class="countdown-value" id="cdHours">00</span><span class="countdown-name">Hrs</span></div>
+        <span class="countdown-sep">:</span>
+        <div class="countdown-unit"><span class="countdown-value" id="cdMinutes">00</span><span class="countdown-name">Min</span></div>
+        <span class="countdown-sep">:</span>
+        <div class="countdown-unit"><span class="countdown-value" id="cdSeconds">00</span><span class="countdown-name">Sec</span></div>
+      </div>
     </div>
 
     <!-- Carousel -->
@@ -807,45 +904,135 @@
       const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
       // ───────────────────────────────────────────────
-      // CAROUSEL STATE
+      // CMS CONTENT LOADER
+      // ───────────────────────────────────────────────
+      function applyContent(data) {
+        if (!data) return;
+        const set = (sel, txt) => { const el = document.querySelector(sel); if (el && txt != null) el.textContent = txt; };
+        if (data.nav) {
+          set('.nav-side', data.nav.back);
+          set('.nav-side-shop', data.nav.shop);
+        }
+        if (data.subheader) {
+          set('.subheader-explore', data.subheader.kicker);
+          const t = document.querySelector('.subheader-title');
+          if (t && data.subheader.title) t.innerHTML = data.subheader.title.split(' ').join('&nbsp; ');
+        }
+        if (data.countdown) {
+          const root = document.getElementById('countdown');
+          if (root && data.countdown.target) root.dataset.target = data.countdown.target;
+          set('#countdownLabel', data.countdown.label);
+        }
+        if (Array.isArray(data.cards)) {
+          const labels = document.querySelectorAll('.card .card-label');
+          data.cards.forEach((c, i) => { if (labels[i] && c.label) labels[i].textContent = c.label; });
+        }
+      }
+
+      // Fetch CMS data, then start countdown (so it uses the latest target)
+      fetch('data/site.json', { cache: 'no-store' })
+        .then(r => r.ok ? r.json() : null)
+        .then(applyContent)
+        .catch(() => {})
+        .finally(initCountdown);
+
+      // ───────────────────────────────────────────────
+      // COUNTDOWN
+      // ───────────────────────────────────────────────
+      function initCountdown() {
+        const root = document.getElementById('countdown');
+        if (!root) return;
+        const target = new Date(root.dataset.target).getTime();
+        if (Number.isNaN(target)) return;
+
+        const dEl = document.getElementById('cdDays');
+        const hEl = document.getElementById('cdHours');
+        const mEl = document.getElementById('cdMinutes');
+        const sEl = document.getElementById('cdSeconds');
+        const pad = (n) => String(Math.max(0, n)).padStart(2, '0');
+
+        function tick() {
+          const diff = target - Date.now();
+          if (diff <= 0) {
+            dEl.textContent = hEl.textContent = mEl.textContent = sEl.textContent = '00';
+            const label = document.getElementById('countdownLabel');
+            if (label) label.textContent = 'OUT NOW';
+            return;
+          }
+          const s = Math.floor(diff / 1000);
+          dEl.textContent = pad(Math.floor(s / 86400));
+          hEl.textContent = pad(Math.floor((s % 86400) / 3600));
+          mEl.textContent = pad(Math.floor((s % 3600) / 60));
+          sEl.textContent = pad(s % 60);
+        }
+        tick();
+        setInterval(tick, 1000);
+      }
+
+      // ───────────────────────────────────────────────
+      // CAROUSEL STATE (infinite)
       // ───────────────────────────────────────────────
       const track       = document.getElementById('carouselTrack');
       const dotsWrap    = document.getElementById('carouselDots');
       const activeLabel = document.getElementById('activeLabel');
-      const cards       = Array.from(track.querySelectorAll('.card'));
-      const CARD_COUNT  = cards.length;
+      const originalCards = Array.from(track.querySelectorAll('.card'));
+      const REAL_COUNT = originalCards.length;
 
       const LABELS = ['4X4 VIDEO', 'SHOP', 'EXPERIENCE', 'TOUR', 'WORLD'];
 
-      let currentIndex = 0;
+      // ── Clone cards before and after for seamless looping
+      function buildLoop() {
+        const before = document.createDocumentFragment();
+        const after  = document.createDocumentFragment();
+        originalCards.forEach((c) => {
+          const cb = c.cloneNode(true);
+          cb.setAttribute('aria-hidden', 'true');
+          cb.removeAttribute('tabindex');
+          cb.classList.add('clone');
+          before.appendChild(cb);
+          const ca = c.cloneNode(true);
+          ca.setAttribute('aria-hidden', 'true');
+          ca.removeAttribute('tabindex');
+          ca.classList.add('clone');
+          after.appendChild(ca);
+        });
+        track.insertBefore(before, track.firstChild);
+        track.appendChild(after);
+      }
+      buildLoop();
+
+      const cards = Array.from(track.querySelectorAll('.card'));
+      const CARD_COUNT = cards.length;
+      const realIndex = (i) => ((i % REAL_COUNT) + REAL_COUNT) % REAL_COUNT;
+
+      let currentIndex = REAL_COUNT; // start on the first real card
       let targetOffset = 0;
       let currentOffset = 0;
-      let isAnimating = false;
       let isDragging = false;
       let dragStartX = 0;
       let dragStartOffset = 0;
-      let velocity = 0;
       let lastWheelTime = 0;
       let rafId = null;
 
-      // ── Build dots
+      // ── Build dots (one per real card)
       function buildDots() {
         dotsWrap.innerHTML = '';
-        cards.forEach((_, i) => {
+        for (let i = 0; i < REAL_COUNT; i++) {
           const d = document.createElement('button');
           d.className = 'dot' + (i === 0 ? ' active' : '');
           d.setAttribute('role', 'tab');
           d.setAttribute('aria-selected', i === 0 ? 'true' : 'false');
           d.setAttribute('aria-label', `Go to ${LABELS[i]}`);
-          d.addEventListener('click', () => goTo(i));
+          d.addEventListener('click', () => goTo(REAL_COUNT + i));
           dotsWrap.appendChild(d);
-        });
+        }
       }
 
       function updateDots() {
         const dots = dotsWrap.querySelectorAll('.dot');
+        const ri = realIndex(currentIndex);
         dots.forEach((d, i) => {
-          const active = i === currentIndex;
+          const active = i === ri;
           d.classList.toggle('active', active);
           d.setAttribute('aria-selected', active ? 'true' : 'false');
         });
@@ -869,8 +1056,24 @@
             card.classList.add('adjacent');
           }
         });
-        activeLabel.textContent = LABELS[currentIndex];
+        activeLabel.textContent = LABELS[realIndex(currentIndex)];
         updateDots();
+      }
+
+      // ── Snap back to the middle band without animation when out of range
+      function snapIfNeeded() {
+        if (currentIndex < REAL_COUNT || currentIndex >= REAL_COUNT * 2) {
+          const snapped = REAL_COUNT + realIndex(currentIndex);
+          currentIndex = snapped;
+          targetOffset = getOffsetForIndex(snapped);
+          currentOffset = targetOffset;
+          track.style.transition = 'none';
+          track.style.transform = `translateX(${currentOffset}px)`;
+          // Force reflow then re-enable
+          void track.offsetWidth;
+          track.style.transition = '';
+          applyCardStates();
+        }
       }
 
       // ── Smooth animation loop (spring-like interpolation)
@@ -880,6 +1083,7 @@
           currentOffset = targetOffset;
           track.style.transform = `translateX(${currentOffset}px)`;
           rafId = null;
+          snapIfNeeded();
           return;
         }
 
@@ -894,15 +1098,14 @@
       }
 
       function goTo(index) {
-        if (index < 0 || index >= CARD_COUNT) return;
         currentIndex = index;
         targetOffset = getOffsetForIndex(index);
         applyCardStates();
         startAnimation();
       }
 
-      function next() { goTo(Math.min(currentIndex + 1, CARD_COUNT - 1)); }
-      function prev() { goTo(Math.max(currentIndex - 1, 0)); }
+      function next() { goTo(currentIndex + 1); }
+      function prev() { goTo(currentIndex - 1); }
 
       // ── Wheel handler
       let wheelAccum = 0;
@@ -958,16 +1161,27 @@
         }
       });
 
-      // ── Card click to focus
+      // ── Click on a card focuses the nearest equivalent (works across clones)
+      function nearestIndexFor(realIdx) {
+        const base = currentIndex - realIndex(currentIndex);
+        const candidates = [base + realIdx - REAL_COUNT, base + realIdx, base + realIdx + REAL_COUNT];
+        return candidates.reduce((best, c) =>
+          Math.abs(c - currentIndex) < Math.abs(best - currentIndex) ? c : best
+        );
+      }
+
       cards.forEach((card, i) => {
         card.addEventListener('click', () => {
-          if (!isMobile() && i !== currentIndex) goTo(i);
+          if (isMobile()) return;
+          const target = nearestIndexFor(realIndex(i));
+          if (target !== currentIndex) goTo(target);
         });
 
         card.addEventListener('keydown', (e) => {
           if (e.key === 'Enter' || e.key === ' ') {
             e.preventDefault();
-            if (i !== currentIndex) goTo(i);
+            const target = nearestIndexFor(realIndex(i));
+            if (target !== currentIndex) goTo(target);
           }
         });
       });
@@ -982,7 +1196,7 @@
       // ── Init carousel
       function initCarousel() {
         buildDots();
-        goTo(0);
+        goTo(REAL_COUNT);
       }
 
       // ───────────────────────────────────────────────
