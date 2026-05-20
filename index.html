@@ -409,40 +409,42 @@
     .card {
       position: relative;
       flex-shrink: 0;
-      width: clamp(340px, 38vw, 560px);
-      height: clamp(340px, 38vw, 560px);
+      width: clamp(360px, 42vw, 620px);
+      height: clamp(360px, 42vw, 620px);
       border-radius: 6px;
       overflow: hidden;
       cursor: pointer;
       transition:
         transform 0.7s var(--ease),
+        opacity 0.7s var(--ease),
+        filter 0.7s var(--ease),
         box-shadow 0.7s var(--ease);
-      transform: scale(0.55);
-      opacity: 1;
-      filter: none;
+      transform: scale(0.45);
+      opacity: 0.55;
+      filter: blur(10px);
       pointer-events: none;
     }
 
     .card.active {
-      transform: scale(1.4);
+      transform: scale(1.55);
       opacity: 1;
-      filter: none;
+      filter: blur(0);
       cursor: pointer;
       pointer-events: auto;
-      box-shadow: 0 40px 120px rgba(0, 0, 0, 0.7);
+      box-shadow: 0 45px 130px rgba(0, 0, 0, 0.75);
       z-index: 5;
     }
 
     .card.adjacent {
-      transform: scale(0.55);
-      opacity: 1;
-      filter: none;
+      transform: scale(0.6);
+      opacity: 0.9;
+      filter: blur(4px);
       pointer-events: none;
     }
 
     .card.active:hover {
-      transform: scale(1.42);
-      box-shadow: 0 44px 130px rgba(0, 0, 0, 0.75);
+      transform: scale(1.57);
+      box-shadow: 0 50px 140px rgba(0, 0, 0, 0.8);
     }
 
     .card img {
