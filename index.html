@@ -399,51 +399,60 @@
     .carousel-track {
       display: flex;
       align-items: center;
-      gap: 80px;
+      gap: 30px;
       position: relative;
       will-change: transform;
     }
 
-    /* ===== CARDS ===== */
+    /* ===== CARDS — Travis Scott style: framed photo + side peek ===== */
     .card {
       position: relative;
       flex-shrink: 0;
-      width: clamp(320px, 36vw, 540px);
-      height: clamp(320px, 36vw, 540px);
-      border-radius: 6px;
+      width: clamp(280px, 30vw, 460px);
+      height: clamp(280px, 30vw, 460px);
+      border-radius: 4px;
       overflow: hidden;
       cursor: pointer;
+      background: rgba(0, 0, 0, 0.4);
       transition:
         transform 0.7s var(--ease),
         opacity 0.7s var(--ease),
         filter 0.7s var(--ease),
-        box-shadow 0.7s var(--ease);
-      transform: scale(0.4);
-      opacity: 0.45;
-      filter: blur(14px);
+        box-shadow 0.7s var(--ease),
+        border-color 0.7s var(--ease);
+      transform: scale(0.7);
+      opacity: 0.5;
+      filter: blur(10px);
       pointer-events: none;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+      border: 1px solid rgba(240, 237, 232, 0.08);
     }
 
     .card.active {
-      transform: scale(1.7);
+      transform: scale(1);
       opacity: 1;
       filter: blur(0);
       cursor: pointer;
       pointer-events: auto;
-      box-shadow: 0 50px 140px rgba(0, 0, 0, 0.8);
+      box-shadow:
+        0 0 0 1px rgba(240, 237, 232, 0.25),
+        0 30px 90px rgba(0, 0, 0, 0.7);
+      border-color: rgba(240, 237, 232, 0.25);
       z-index: 5;
     }
 
     .card.adjacent {
-      transform: scale(0.55);
+      transform: scale(0.82);
       opacity: 0.85;
-      filter: blur(6px);
+      filter: blur(5px);
       pointer-events: none;
     }
 
     .card.active:hover {
-      transform: scale(1.72);
-      box-shadow: 0 55px 150px rgba(0, 0, 0, 0.85);
+      transform: scale(1.02);
+      box-shadow:
+        0 0 0 1px rgba(240, 237, 232, 0.4),
+        0 36px 100px rgba(0, 0, 0, 0.75);
     }
 
     .card img {
@@ -742,8 +751,8 @@
         width: 70vw;
         height: 70vw;
       }
-      .card.active { transform: scale(1.35); }
-      .card.adjacent { transform: scale(0.55); }
+      .card.active { transform: scale(1); }
+      .card.adjacent { transform: scale(0.78); }
 
       .bottom-btn-wrap {
         padding-bottom: 24px;
