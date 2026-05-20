@@ -244,26 +244,33 @@
     .countdown-value {
       font-family: 'Space Grotesk', sans-serif;
       font-size: 64px;
-      font-weight: 500;
+      font-weight: 300;
       line-height: 1;
-      color: var(--off-white);
+      color: rgba(240, 237, 232, 0.55);
       font-variant-numeric: tabular-nums;
       letter-spacing: 0.02em;
+      text-shadow: 0 0 24px rgba(240, 237, 232, 0.1);
     }
+
+    #cdSeconds { color: rgba(240, 237, 232, 0.3); }
 
     .countdown-name {
       margin-top: 12px;
       font-size: 11px;
       letter-spacing: 0.35em;
       text-transform: uppercase;
-      color: var(--warm-gray);
+      color: rgba(138, 128, 116, 0.65);
     }
 
     .countdown-sep {
       font-size: 52px;
       line-height: 1;
-      color: var(--warm-gray);
+      color: rgba(138, 128, 116, 0.4);
       padding-top: 4px;
+    }
+
+    .countdown-label {
+      color: rgba(138, 128, 116, 0.75) !important;
     }
 
     @media (max-width: 768px) {
@@ -294,6 +301,57 @@
       overflow: hidden;
       pointer-events: auto;
       padding: 20px 0 0;
+      position: relative;
+    }
+
+    /* ===== NAVIGATION HINT ARROWS ===== */
+    .nav-arrow {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 56px;
+      height: 56px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: transparent;
+      border: none;
+      color: rgba(240, 237, 232, 0.55);
+      cursor: pointer;
+      z-index: 12;
+      transition: color var(--duration) var(--ease), transform var(--duration) var(--ease);
+      animation: arrowPulse 2.4s var(--ease) infinite;
+    }
+
+    .nav-arrow:hover {
+      color: var(--off-white);
+      animation: none;
+    }
+
+    .nav-arrow.nav-arrow-left  { left: 24px; }
+    .nav-arrow.nav-arrow-right { right: 24px; animation-delay: 1.2s; }
+
+    .nav-arrow svg {
+      width: 38px;
+      height: 38px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 1.2;
+    }
+
+    @keyframes arrowPulse {
+      0%, 100% { opacity: 0.5; transform: translateY(-50%) translateX(0); }
+      50%      { opacity: 1;   transform: translateY(-50%) translateX(var(--arrow-shift, 0)); }
+    }
+
+    .nav-arrow-left  { --arrow-shift: -6px; }
+    .nav-arrow-right { --arrow-shift: 6px; }
+
+    @media (max-width: 480px) {
+      .nav-arrow { width: 44px; height: 44px; }
+      .nav-arrow svg { width: 28px; height: 28px; }
+      .nav-arrow.nav-arrow-left  { left: 8px; }
+      .nav-arrow.nav-arrow-right { right: 8px; }
     }
 
     .carousel-track-wrapper {
@@ -319,9 +377,9 @@
     .card {
       position: relative;
       flex-shrink: 0;
-      width: clamp(320px, 34vw, 480px);
-      height: clamp(320px, 34vw, 480px);
-      border-radius: 4px;
+      width: clamp(280px, 30vw, 420px);
+      height: clamp(280px, 30vw, 420px);
+      border-radius: 6px;
       overflow: hidden;
       cursor: pointer;
       transition:
@@ -329,32 +387,36 @@
         opacity 0.7s var(--ease),
         filter 0.7s var(--ease),
         box-shadow 0.7s var(--ease);
-      transform: scale(0.55);
-      opacity: 0.18;
-      filter: blur(5px);
+      transform: scale(0.65);
+      opacity: 0.5;
+      filter: blur(2px) brightness(0.7);
       pointer-events: none;
     }
 
     .card.active {
-      transform: scale(1.22);
+      transform: scale(1.15);
       opacity: 1;
-      filter: blur(0px);
+      filter: blur(0px) brightness(1);
       cursor: pointer;
       pointer-events: auto;
-      box-shadow: 0 30px 100px rgba(0, 0, 0, 0.75);
+      box-shadow:
+        0 0 0 1px rgba(240, 237, 232, 0.15),
+        0 30px 100px rgba(0, 0, 0, 0.75);
       z-index: 5;
     }
 
     .card.adjacent {
-      transform: scale(0.7);
-      opacity: 0.4;
-      filter: blur(3px);
+      transform: scale(0.8);
+      opacity: 0.7;
+      filter: blur(1.5px) brightness(0.8);
       pointer-events: none;
     }
 
     .card.active:hover {
-      transform: scale(1.25);
-      box-shadow: 0 34px 110px rgba(0, 0, 0, 0.8);
+      transform: scale(1.18);
+      box-shadow:
+        0 0 0 1px rgba(240, 237, 232, 0.25),
+        0 34px 110px rgba(0, 0, 0, 0.8);
     }
 
     .card img {
@@ -763,6 +825,12 @@
 
     <!-- Carousel -->
     <section class="carousel-section" aria-label="Featured content carousel">
+      <button class="nav-arrow nav-arrow-left fade-in fade-in-delay-3" id="navPrev" aria-label="Previous">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><polyline points="15 5 8 12 15 19" stroke-linecap="round" stroke-linejoin="round"></polyline></svg>
+      </button>
+      <button class="nav-arrow nav-arrow-right fade-in fade-in-delay-3" id="navNext" aria-label="Next">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><polyline points="9 5 16 12 9 19" stroke-linecap="round" stroke-linejoin="round"></polyline></svg>
+      </button>
       <div class="carousel-track-wrapper">
         <div class="carousel-track" id="carouselTrack" role="list">
 
@@ -1185,6 +1253,12 @@
           }
         });
       });
+
+      // ── Navigation arrow buttons
+      const navPrev = document.getElementById('navPrev');
+      const navNext = document.getElementById('navNext');
+      if (navPrev) navPrev.addEventListener('click', prev);
+      if (navNext) navNext.addEventListener('click', next);
 
       // ── Keyboard arrows
       document.addEventListener('keydown', (e) => {
