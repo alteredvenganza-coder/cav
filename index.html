@@ -1009,6 +1009,9 @@
       // ───────────────────────────────────────────────
       const isMobile = () => window.matchMedia('(max-width: 768px)').matches;
       const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const esc = (s) => String(s == null ? '' : s)
+        .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+        .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 
       // ───────────────────────────────────────────────
       // CURSOR COLOR REVEAL ON GRAYSCALE BG
@@ -1016,7 +1019,6 @@
       (function initColorReveal() {
         const veil = document.getElementById('bgGrayscale');
         if (!veil) return;
-        // Hover-capable only: touch devices keep the full grayscale veil
         if (!window.matchMedia('(hover: hover)').matches) return;
 
         let tx = window.innerWidth / 2;
@@ -1064,14 +1066,55 @@
       })();
 
       // ───────────────────────────────────────────────
-      // CMS CONTENT LOADER
+      // CMS CONTENT — render full site from data/site.json
       // ───────────────────────────────────────────────
+      let LABELS = ['4X4 VIDEO', 'SHOP', 'EXPERIENCE', 'TOUR', 'WORLD'];
+      let END_MSG = 'OUT NOW';
+
+      function renderCards(cards) {
+        const track = document.getElementById('carouselTrack');
+        if (!track || !Array.isArray(cards) || !cards.length) return;
+        track.innerHTML = cards.map((c, i) => {
+          const fit = c.imageFit === 'contain' ? 'contain' : 'cover';
+          const imgStyle = `object-fit:${fit};background:#0a0a0a;`;
+          const ov = c.overlay;
+          const overlayHTML = (ov && (ov.caption || ov.buttonText)) ? `
+            <div class="card-shop-overlay">
+              ${ov.caption ? `<span style="font-size:9px;letter-spacing:0.45em;color:rgba(240,237,232,0.65);text-transform:uppercase;">${esc(ov.caption)}</span>` : ''}
+              ${ov.buttonText ? `<a href="${esc(ov.buttonLink || '#')}" class="card-shop-btn">${esc(ov.buttonText)}</a>` : ''}
+            </div>` : '';
+          const labelHTML = c.showLabel && c.label ? `<div class="card-label">${esc(c.label)}</div>` : '';
+          return `
+            <div class="card" role="listitem" data-index="${i}" tabindex="0" aria-label="${esc(c.label || '')}" ${c.link ? `data-link="${esc(c.link)}"` : ''}>
+              <img src="${esc(c.image || '')}" alt="${esc(c.label || '')}" loading="${i === 0 ? 'eager' : 'lazy'}" decoding="async" style="${imgStyle}" />
+              ${overlayHTML}
+              ${labelHTML}
+            </div>`;
+        }).join('');
+      }
+
+      function renderMenu(menu) {
+        if (!menu) return;
+        const nav = document.querySelector('.menu-nav-links');
+        if (nav && Array.isArray(menu.items)) {
+          nav.innerHTML = menu.items.map(it =>
+            `<a href="${esc(it.link || '#')}" class="menu-btn">${esc(it.label || '')}</a>`
+          ).join('');
+        }
+        const bottoms = document.querySelectorAll('.menu-bottom-row .menu-side-label');
+        if (bottoms[0] && menu.bottomLeft  != null) bottoms[0].textContent = menu.bottomLeft;
+        if (bottoms[1] && menu.bottomRight != null) bottoms[1].textContent = menu.bottomRight;
+      }
+
       function applyContent(data) {
         if (!data) return;
         const set = (sel, txt) => { const el = document.querySelector(sel); if (el && txt != null) el.textContent = txt; };
+
         if (data.nav) {
-          set('.nav-side', data.nav.back);
-          set('.nav-side-shop', data.nav.shop);
+          const back = document.querySelector('.nav-side');
+          const shop = document.querySelector('.nav-side-shop');
+          if (back) { if (data.nav.back != null) back.textContent = data.nav.back; if (data.nav.backLink) back.setAttribute('href', data.nav.backLink); }
+          if (shop) { if (data.nav.shop != null) shop.textContent = data.nav.shop; if (data.nav.shopLink) shop.setAttribute('href', data.nav.shopLink); }
         }
         if (data.subheader) {
           set('.subheader-explore', data.subheader.kicker);
@@ -1082,19 +1125,14 @@
           const root = document.getElementById('countdown');
           if (root && data.countdown.target) root.dataset.target = data.countdown.target;
           set('#countdownLabel', data.countdown.label);
+          if (data.countdown.endMessage) END_MSG = data.countdown.endMessage;
         }
-        if (Array.isArray(data.cards)) {
-          const labels = document.querySelectorAll('.card .card-label');
-          data.cards.forEach((c, i) => { if (labels[i] && c.label) labels[i].textContent = c.label; });
+        if (Array.isArray(data.cards) && data.cards.length) {
+          LABELS = data.cards.map(c => c.label || '');
+          renderCards(data.cards);
         }
+        if (data.menu) renderMenu(data.menu);
       }
-
-      // Fetch CMS data, then start countdown (so it uses the latest target)
-      fetch('data/site.json', { cache: 'no-store' })
-        .then(r => r.ok ? r.json() : null)
-        .then(applyContent)
-        .catch(() => {})
-        .finally(initCountdown);
 
       // ───────────────────────────────────────────────
       // COUNTDOWN
@@ -1116,7 +1154,7 @@
           if (diff <= 0) {
             dEl.textContent = hEl.textContent = mEl.textContent = sEl.textContent = '00';
             const label = document.getElementById('countdownLabel');
-            if (label) label.textContent = 'OUT NOW';
+            if (label) label.textContent = END_MSG;
             return;
           }
           const s = Math.floor(diff / 1000);
@@ -1135,10 +1173,8 @@
       const track       = document.getElementById('carouselTrack');
       const dotsWrap    = document.getElementById('carouselDots');
       const activeLabel = document.getElementById('activeLabel');
-      const originalCards = Array.from(track.querySelectorAll('.card'));
-      const REAL_COUNT = originalCards.length;
-
-      const LABELS = ['4X4 VIDEO', 'SHOP', 'EXPERIENCE', 'TOUR', 'WORLD'];
+      let originalCards = [];
+      let REAL_COUNT = 0;
 
       // ── Clone cards before and after for seamless looping
       function buildLoop() {
@@ -1159,13 +1195,12 @@
         track.insertBefore(before, track.firstChild);
         track.appendChild(after);
       }
-      buildLoop();
 
-      const cards = Array.from(track.querySelectorAll('.card'));
-      const CARD_COUNT = cards.length;
+      let cards = [];
+      let CARD_COUNT = 0;
       const realIndex = (i) => ((i % REAL_COUNT) + REAL_COUNT) % REAL_COUNT;
 
-      let currentIndex = REAL_COUNT + 1; // start on SHOP (real index 1)
+      let currentIndex = 0;
       let targetOffset = 0;
       let currentOffset = 0;
       let isDragging = false;
@@ -1331,21 +1366,31 @@
         );
       }
 
-      cards.forEach((card, i) => {
-        card.addEventListener('click', () => {
-          if (isMobile()) return;
-          const target = nearestIndexFor(realIndex(i));
-          if (target !== currentIndex) goTo(target);
-        });
-
-        card.addEventListener('keydown', (e) => {
-          if (e.key === 'Enter' || e.key === ' ') {
-            e.preventDefault();
+      function bindCardEvents() {
+        cards.forEach((card, i) => {
+          card.addEventListener('click', () => {
+            if (isMobile()) return;
+            if (i === currentIndex) {
+              const link = card.getAttribute('data-link');
+              if (link) { window.location.href = link; return; }
+            }
             const target = nearestIndexFor(realIndex(i));
             if (target !== currentIndex) goTo(target);
-          }
+          });
+
+          card.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              if (i === currentIndex) {
+                const link = card.getAttribute('data-link');
+                if (link) { window.location.href = link; return; }
+              }
+              const target = nearestIndexFor(realIndex(i));
+              if (target !== currentIndex) goTo(target);
+            }
+          });
         });
-      });
+      }
 
       // ── Navigation arrow buttons
       const navPrev = document.getElementById('navPrev');
@@ -1353,19 +1398,29 @@
       if (navPrev) navPrev.addEventListener('click', prev);
       if (navNext) navNext.addEventListener('click', next);
 
-      // ── Keyboard arrows
+      // ── Init carousel — reads originalCards from current DOM
+      const INITIAL_REAL_INDEX = 1;
+      function initCarousel() {
+        originalCards = Array.from(track.querySelectorAll('.card'));
+        REAL_COUNT = originalCards.length;
+        if (!REAL_COUNT) return;
+        buildLoop();
+        cards = Array.from(track.querySelectorAll('.card'));
+        CARD_COUNT = cards.length;
+        bindCardEvents();
+        buildDots();
+        currentIndex = REAL_COUNT + Math.min(INITIAL_REAL_INDEX, REAL_COUNT - 1);
+        goTo(currentIndex);
+      }
+
+      // ── Keyboard arrows (menuOverlay ref resolved later)
       document.addEventListener('keydown', (e) => {
-        if (menuOverlay.classList.contains('open')) return;
+        const mo = document.getElementById('menuOverlay');
+        if (mo && mo.classList.contains('open')) return;
+        if (!REAL_COUNT) return;
         if (e.key === 'ArrowRight') next();
         if (e.key === 'ArrowLeft') prev();
       });
-
-      // ── Init carousel (start on SHOP card — index 1 of real set)
-      const INITIAL_REAL_INDEX = 1;
-      function initCarousel() {
-        buildDots();
-        goTo(REAL_COUNT + INITIAL_REAL_INDEX);
-      }
 
       // ───────────────────────────────────────────────
       // MENU
@@ -1422,6 +1477,7 @@
       // ───────────────────────────────────────────────
       let resizeTimer;
       window.addEventListener('resize', () => {
+        if (!CARD_COUNT) return;
         clearTimeout(resizeTimer);
         resizeTimer = setTimeout(() => {
           targetOffset = getOffsetForIndex(currentIndex);
@@ -1431,14 +1487,23 @@
       });
 
       // ───────────────────────────────────────────────
-      // BOOT
+      // BOOT — fetch JSON, render, then init
       // ───────────────────────────────────────────────
-      window.addEventListener('load', () => {
+      async function boot() {
+        let data = null;
+        try {
+          const r = await fetch('data/site.json', { cache: 'no-store' });
+          if (r.ok) data = await r.json();
+        } catch (e) { /* offline / no JSON — use HTML defaults */ }
+        applyContent(data);
+        initCountdown();
         initCarousel();
-      });
+      }
 
-      if (document.readyState === 'complete') {
-        initCarousel();
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', boot);
+      } else {
+        boot();
       }
 
     })();

@@ -1,11 +1,1348 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="it">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>CAV — CMS</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" />
+  <style>
+    :root {
+      --bg: #050505;
+      --bg-2: #0d0d0d;
+      --bg-3: #161616;
+      --bg-4: #1e1e1e;
+      --line: rgba(240, 237, 232, 0.08);
+      --line-2: rgba(240, 237, 232, 0.15);
+      --fg: #f0ede8;
+      --fg-dim: rgba(240, 237, 232, 0.6);
+      --fg-faint: rgba(240, 237, 232, 0.4);
+      --accent: #f0ede8;
+      --good: #6cc070;
+      --bad: #e85a5a;
+      --warn: #d9a85a;
+      --radius: 6px;
+      --t: 200ms cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0; padding: 0;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      font-size: 14px;
+      line-height: 1.5;
+      min-height: 100vh;
+    }
+    a { color: var(--fg); }
+    button { font-family: inherit; }
+
+    /* ─── LOGIN ─── */
+    .login-wrap {
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+    }
+    .login-card {
+      width: 100%;
+      max-width: 440px;
+      background: var(--bg-2);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 36px 32px;
+    }
+    .login-logo {
+      letter-spacing: 0.5em;
+      font-size: 14px;
+      font-weight: 600;
+      text-align: center;
+      margin-bottom: 8px;
+    }
+    .login-sub {
+      text-align: center;
+      color: var(--fg-dim);
+      font-size: 12px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      margin-bottom: 30px;
+    }
+    .field { margin-bottom: 18px; }
+    .field label {
+      display: block;
+      font-size: 11px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--fg-dim);
+      margin-bottom: 7px;
+    }
+    .field-hint {
+      font-size: 11px;
+      color: var(--fg-faint);
+      margin-top: 6px;
+      line-height: 1.4;
+    }
+    .field-hint a { color: var(--fg-dim); text-decoration: underline; }
+    input[type=text], input[type=password], input[type=url], input[type=datetime-local], textarea, select {
+      width: 100%;
+      background: var(--bg);
+      border: 1px solid var(--line-2);
+      border-radius: 4px;
+      padding: 10px 12px;
+      color: var(--fg);
+      font-family: inherit;
+      font-size: 14px;
+      outline: none;
+      transition: border-color var(--t), background var(--t);
+    }
+    input:focus, textarea:focus, select:focus {
+      border-color: var(--fg-dim);
+      background: var(--bg-3);
+    }
+    textarea { resize: vertical; min-height: 80px; }
+    .btn {
+      background: var(--fg);
+      color: var(--bg);
+      border: none;
+      border-radius: 4px;
+      padding: 10px 18px;
+      font-size: 12px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity var(--t), transform var(--t);
+    }
+    .btn:hover { opacity: 0.85; }
+    .btn:active { transform: scale(0.97); }
+    .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+    .btn-ghost {
+      background: transparent;
+      color: var(--fg);
+      border: 1px solid var(--line-2);
+    }
+    .btn-ghost:hover { background: var(--bg-3); opacity: 1; }
+    .btn-danger { background: var(--bad); color: var(--fg); }
+    .btn-icon {
+      background: transparent;
+      border: 1px solid var(--line-2);
+      color: var(--fg-dim);
+      width: 28px;
+      height: 28px;
+      border-radius: 4px;
+      display: inline-grid;
+      place-items: center;
+      cursor: pointer;
+      transition: color var(--t), border-color var(--t);
+    }
+    .btn-icon:hover { color: var(--fg); border-color: var(--fg-dim); }
+    .btn-icon svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 1.6; }
+    .btn-full { width: 100%; padding: 12px; }
+
+    /* ─── APP SHELL ─── */
+    .app-shell { display: none; }
+    .app-shell.ready { display: grid; grid-template-columns: 240px 1fr; min-height: 100vh; }
+
+    .sidebar {
+      background: var(--bg-2);
+      border-right: 1px solid var(--line);
+      padding: 24px 0;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto;
+    }
+    .sidebar-logo {
+      padding: 0 24px 28px;
+      letter-spacing: 0.5em;
+      font-weight: 600;
+      font-size: 13px;
+      border-bottom: 1px solid var(--line);
+    }
+    .sidebar-tabs { padding: 12px 0; }
+    .sidebar-tab {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 24px;
+      color: var(--fg-dim);
+      cursor: pointer;
+      font-size: 13px;
+      letter-spacing: 0.06em;
+      border-left: 2px solid transparent;
+      transition: color var(--t), background var(--t), border-color var(--t);
+      user-select: none;
+    }
+    .sidebar-tab:hover { color: var(--fg); background: var(--bg-3); }
+    .sidebar-tab.active {
+      color: var(--fg);
+      background: var(--bg-3);
+      border-left-color: var(--fg);
+    }
+    .sidebar-tab svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 1.6; }
+    .sidebar-foot {
+      padding: 16px 24px;
+      border-top: 1px solid var(--line);
+      font-size: 11px;
+      color: var(--fg-faint);
+    }
+
+    .main { display: flex; flex-direction: column; min-height: 100vh; }
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 28px;
+      background: rgba(5, 5, 5, 0.92);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--line);
+    }
+    .topbar-title { font-size: 12px; letter-spacing: 0.3em; text-transform: uppercase; color: var(--fg-dim); }
+    .topbar-actions { display: flex; gap: 10px; align-items: center; }
+    .status {
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--fg-faint);
+      transition: color var(--t);
+    }
+    .status.dirty  { color: var(--warn); }
+    .status.saving { color: var(--fg); }
+    .status.ok     { color: var(--good); }
+    .status.err    { color: var(--bad); }
+
+    .content {
+      padding: 28px;
+      max-width: 980px;
+      width: 100%;
+    }
+    .panel { display: none; }
+    .panel.active { display: block; }
+
+    .section-title {
+      font-size: 11px;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--fg-dim);
+      margin: 0 0 14px;
+    }
+    .group {
+      background: var(--bg-2);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 24px;
+      margin-bottom: 18px;
+    }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    @media (max-width: 720px) {
+      .row { grid-template-columns: 1fr; }
+      .app-shell.ready { grid-template-columns: 1fr; }
+      .sidebar { position: relative; height: auto; }
+    }
+
+    /* ─── CARDS LIST ─── */
+    .card-item {
+      background: var(--bg-2);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      margin-bottom: 14px;
+      overflow: hidden;
+    }
+    .card-head {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      cursor: pointer;
+      user-select: none;
+      transition: background var(--t);
+    }
+    .card-head:hover { background: var(--bg-3); }
+    .card-thumb {
+      width: 48px;
+      height: 48px;
+      border-radius: 4px;
+      background: var(--bg-4) center/cover no-repeat;
+      border: 1px solid var(--line);
+      flex-shrink: 0;
+    }
+    .card-title-wrap { flex: 1; min-width: 0; }
+    .card-title { font-weight: 500; font-size: 14px; }
+    .card-sub { font-size: 11px; color: var(--fg-faint); letter-spacing: 0.06em; }
+    .card-actions { display: flex; gap: 6px; align-items: center; }
+    .card-body {
+      display: none;
+      padding: 16px 16px 20px;
+      border-top: 1px solid var(--line);
+    }
+    .card-item.open .card-body { display: block; }
+    .card-item.open .chev { transform: rotate(180deg); }
+    .chev { transition: transform var(--t); color: var(--fg-dim); }
+    .chev svg { width: 12px; height: 12px; stroke: currentColor; fill: none; stroke-width: 2; }
+
+    /* ─── INLINE ROW ITEMS ─── */
+    .item-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr auto;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+    .item-row .item-actions { display: flex; gap: 4px; }
+
+    /* ─── MEDIA GRID ─── */
+    .media-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 12px;
+      margin-top: 12px;
+    }
+    .media-tile {
+      background: var(--bg-2);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      overflow: hidden;
+      transition: border-color var(--t);
+    }
+    .media-tile:hover { border-color: var(--line-2); }
+    .media-img {
+      aspect-ratio: 1;
+      background: var(--bg-3) center/cover no-repeat;
+      cursor: pointer;
+    }
+    .media-info {
+      padding: 8px 10px;
+      font-size: 11px;
+      color: var(--fg-dim);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+    }
+    .media-name {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      flex: 1;
+      min-width: 0;
+    }
+    .upload-zone {
+      border: 1px dashed var(--line-2);
+      border-radius: var(--radius);
+      padding: 32px 20px;
+      text-align: center;
+      color: var(--fg-dim);
+      cursor: pointer;
+      transition: border-color var(--t), background var(--t);
+    }
+    .upload-zone:hover, .upload-zone.drag {
+      border-color: var(--fg-dim);
+      background: var(--bg-3);
+      color: var(--fg);
+    }
+    .upload-zone input { display: none; }
+
+    /* ─── IMAGE PICKER (combo URL + media) ─── */
+    .img-picker {
+      display: grid;
+      grid-template-columns: 64px 1fr auto;
+      gap: 10px;
+      align-items: center;
+    }
+    .img-picker .prev {
+      width: 64px; height: 64px;
+      background: var(--bg-3) center/cover no-repeat;
+      border: 1px solid var(--line);
+      border-radius: 4px;
+    }
+
+    /* ─── MODAL ─── */
+    .modal-bg {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.75);
+      display: none;
+      place-items: center;
+      z-index: 100;
+      padding: 24px;
+    }
+    .modal-bg.open { display: grid; }
+    .modal {
+      background: var(--bg-2);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      width: 100%;
+      max-width: 720px;
+      max-height: 90vh;
+      overflow: auto;
+      padding: 24px;
+    }
+    .modal h3 { margin: 0 0 16px; font-size: 13px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--fg-dim); }
+
+    /* ─── TOAST ─── */
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: var(--bg-3);
+      border: 1px solid var(--line-2);
+      border-radius: 4px;
+      padding: 12px 18px;
+      font-size: 13px;
+      color: var(--fg);
+      z-index: 200;
+      opacity: 0;
+      transform: translateY(8px);
+      transition: opacity 200ms, transform 200ms;
+      pointer-events: none;
+      max-width: 360px;
+    }
+    .toast.show { opacity: 1; transform: translateY(0); }
+    .toast.err { border-color: var(--bad); }
+    .toast.ok { border-color: var(--good); }
+
+    .empty {
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--fg-faint);
+      font-size: 13px;
+    }
+
+    .switch-row {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 8px 0;
+    }
+    .switch {
+      position: relative;
+      width: 36px; height: 20px;
+      background: var(--bg-4);
+      border: 1px solid var(--line-2);
+      border-radius: 20px;
+      cursor: pointer;
+      transition: background var(--t);
+    }
+    .switch::after {
+      content: '';
+      position: absolute;
+      top: 2px; left: 2px;
+      width: 14px; height: 14px;
+      border-radius: 50%;
+      background: var(--fg-dim);
+      transition: transform var(--t), background var(--t);
+    }
+    .switch.on { background: var(--fg); }
+    .switch.on::after { transform: translateX(16px); background: var(--bg); }
+
+    .hr { height: 1px; background: var(--line); margin: 16px 0; border: 0; }
+  </style>
 </head>
 <body>
-  <script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"></script>
+
+  <!-- ═══════ LOGIN SCREEN ═══════ -->
+  <div class="login-wrap" id="loginScreen">
+    <form class="login-card" id="loginForm">
+      <div class="login-logo">CAV</div>
+      <div class="login-sub">Content Studio</div>
+
+      <div class="field">
+        <label for="patInput">GitHub Personal Access Token</label>
+        <input type="password" id="patInput" autocomplete="off" placeholder="ghp_…" required />
+        <div class="field-hint">
+          Crea un token con permesso <strong>repo</strong> su
+          <a href="https://github.com/settings/tokens/new?scopes=repo&description=CAV%20CMS" target="_blank" rel="noopener">github.com/settings/tokens</a>.
+          Viene salvato solo nel tuo browser.
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="pwInput">Password (opzionale)</label>
+        <input type="password" id="pwInput" autocomplete="off" placeholder="Lascia vuoto se non l'hai impostata" />
+        <div class="field-hint">Solo se hai configurato un gate password nel sito.</div>
+      </div>
+
+      <button type="submit" class="btn btn-full" id="loginBtn">Entra</button>
+      <div id="loginError" style="color: var(--bad); font-size: 12px; margin-top: 12px; min-height: 18px;"></div>
+    </form>
+  </div>
+
+  <!-- ═══════ APP SHELL ═══════ -->
+  <div class="app-shell" id="appShell">
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-logo">CAV CMS</div>
+      <div class="sidebar-tabs" id="sidebarTabs">
+        <div class="sidebar-tab active" data-tab="countdown"><svg viewBox="0 0 24 24"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l3 2M9 2h6"/></svg> Countdown</div>
+        <div class="sidebar-tab" data-tab="subheader"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h10M4 18h16"/></svg> Subheader</div>
+        <div class="sidebar-tab" data-tab="nav"><svg viewBox="0 0 24 24"><path d="M3 12h18M9 6l-6 6 6 6M15 6l6 6-6 6"/></svg> Navigazione</div>
+        <div class="sidebar-tab" data-tab="cards"><svg viewBox="0 0 24 24"><rect x="3" y="6" width="6" height="12" rx="1"/><rect x="11" y="3" width="6" height="18" rx="1"/><rect x="19" y="6" width="2" height="12" rx="1"/></svg> Carosello</div>
+        <div class="sidebar-tab" data-tab="menu"><svg viewBox="0 0 24 24"><path d="M4 5h16M4 12h16M4 19h16"/></svg> Menu</div>
+        <div class="sidebar-tab" data-tab="media"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="2"/><path d="M21 16l-5-5-9 9"/></svg> Media</div>
+        <div class="sidebar-tab" data-tab="raw"><svg viewBox="0 0 24 24"><path d="M9 5L3 12l6 7M15 5l6 7-6 7"/></svg> JSON raw</div>
+      </div>
+      <div class="sidebar-foot">
+        <div id="repoLabel">alteredvenganza-coder/cav</div>
+        <div style="margin-top:6px;">branch <code id="branchLabel">master</code></div>
+      </div>
+    </aside>
+
+    <!-- Main -->
+    <div class="main">
+      <header class="topbar">
+        <div class="topbar-title" id="topTitle">Countdown</div>
+        <div class="topbar-actions">
+          <span class="status" id="status">salvato</span>
+          <button class="btn btn-ghost" id="reloadBtn" title="Ricarica da GitHub">Ricarica</button>
+          <a class="btn btn-ghost" href="../" target="_blank" rel="noopener">Anteprima</a>
+          <button class="btn" id="saveBtn">Pubblica</button>
+          <button class="btn-icon" id="logoutBtn" title="Logout">
+            <svg viewBox="0 0 24 24"><path d="M10 17l-5-5 5-5M5 12h12M15 21h4a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2h-4"/></svg>
+          </button>
+        </div>
+      </header>
+
+      <main class="content">
+
+        <!-- Countdown -->
+        <section class="panel active" data-panel="countdown">
+          <div class="group">
+            <h3 class="section-title">Countdown principale</h3>
+            <div class="row">
+              <div class="field">
+                <label>Etichetta</label>
+                <input type="text" id="cd_label" />
+              </div>
+              <div class="field">
+                <label>Data target</label>
+                <input type="datetime-local" id="cd_target" />
+              </div>
+            </div>
+            <div class="field">
+              <label>Messaggio quando scade</label>
+              <input type="text" id="cd_endMessage" />
+              <div class="field-hint">Sostituisce l'etichetta quando il countdown raggiunge zero.</div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Subheader -->
+        <section class="panel" data-panel="subheader">
+          <div class="group">
+            <h3 class="section-title">Sezione subheader</h3>
+            <div class="row">
+              <div class="field">
+                <label>Kicker</label>
+                <input type="text" id="sh_kicker" />
+              </div>
+              <div class="field">
+                <label>Titolo</label>
+                <input type="text" id="sh_title" />
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Nav -->
+        <section class="panel" data-panel="nav">
+          <div class="group">
+            <h3 class="section-title">Navigazione superiore</h3>
+            <div class="row">
+              <div class="field">
+                <label>Testo BACK</label>
+                <input type="text" id="nv_back" />
+              </div>
+              <div class="field">
+                <label>Link BACK</label>
+                <input type="text" id="nv_backLink" placeholder="# oppure URL" />
+              </div>
+              <div class="field">
+                <label>Testo SHOP</label>
+                <input type="text" id="nv_shop" />
+              </div>
+              <div class="field">
+                <label>Link SHOP</label>
+                <input type="text" id="nv_shopLink" placeholder="shop.html" />
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Cards -->
+        <section class="panel" data-panel="cards">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+            <h3 class="section-title" style="margin:0;">Card del carosello</h3>
+            <button class="btn btn-ghost" id="addCardBtn">+ Nuova card</button>
+          </div>
+          <div id="cardsList"></div>
+        </section>
+
+        <!-- Menu -->
+        <section class="panel" data-panel="menu">
+          <div class="group">
+            <h3 class="section-title">Voci menu</h3>
+            <div id="menuItemsList"></div>
+            <button class="btn btn-ghost" id="addMenuItemBtn" style="margin-top:8px;">+ Aggiungi voce</button>
+          </div>
+          <div class="group">
+            <h3 class="section-title">Etichette in basso</h3>
+            <div class="row">
+              <div class="field">
+                <label>Sinistra</label>
+                <input type="text" id="mn_bottomLeft" />
+              </div>
+              <div class="field">
+                <label>Destra</label>
+                <input type="text" id="mn_bottomRight" />
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Media -->
+        <section class="panel" data-panel="media">
+          <div class="group">
+            <h3 class="section-title">Libreria media</h3>
+            <label class="upload-zone" id="uploadZone">
+              <input type="file" id="uploadInput" accept="image/*,video/*" multiple />
+              <div><strong>Clicca o trascina</strong> file qui per caricare</div>
+              <div style="font-size: 11px; color: var(--fg-faint); margin-top: 6px;">JPG, PNG, WebP, MP4 — salvati in <code>/media</code></div>
+            </label>
+            <div class="media-grid" id="mediaGrid"></div>
+          </div>
+        </section>
+
+        <!-- Raw JSON -->
+        <section class="panel" data-panel="raw">
+          <div class="group">
+            <h3 class="section-title">Modifica diretta site.json</h3>
+            <div class="field-hint" style="margin-bottom:10px;">
+              Solo per utenti avanzati. Le modifiche qui sovrascrivono tutti gli altri tab.
+            </div>
+            <textarea id="rawJson" style="min-height: 480px; font-family: 'SF Mono', Menlo, monospace; font-size: 12px;"></textarea>
+            <button class="btn btn-ghost" id="applyRawBtn" style="margin-top:10px;">Applica al form</button>
+          </div>
+        </section>
+
+      </main>
+    </div>
+  </div>
+
+  <!-- ═══════ MEDIA PICKER MODAL ═══════ -->
+  <div class="modal-bg" id="pickerModal">
+    <div class="modal">
+      <h3>Seleziona un'immagine</h3>
+      <div class="media-grid" id="pickerGrid"></div>
+      <hr class="hr" />
+      <button class="btn btn-ghost" id="pickerCloseBtn">Annulla</button>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast"></div>
+
+  <script>
+  (() => {
+    'use strict';
+
+    // ─────────────────────────────────────────────
+    // CONFIG
+    // ─────────────────────────────────────────────
+    const REPO_OWNER = 'alteredvenganza-coder';
+    const REPO_NAME  = 'cav';
+    const BRANCH     = 'master';
+    const SITE_PATH  = 'data/site.json';
+    const MEDIA_DIR  = 'media';
+    const STORAGE_KEY = 'cav-cms-pat';
+
+    const GH = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}`;
+
+    // ─────────────────────────────────────────────
+    // STATE
+    // ─────────────────────────────────────────────
+    let pat = null;
+    let site = null;       // current edited data
+    let siteSha = null;    // sha of site.json on remote
+    let dirty = false;
+    let mediaCache = null; // [{name, path, sha, download_url, type}]
+
+    // ─────────────────────────────────────────────
+    // UTILS
+    // ─────────────────────────────────────────────
+    const $ = (s) => document.querySelector(s);
+    const $$ = (s) => Array.from(document.querySelectorAll(s));
+    const esc = (s) => String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+
+    function toast(msg, kind = '') {
+      const el = $('#toast');
+      el.textContent = msg;
+      el.className = 'toast show ' + kind;
+      clearTimeout(toast._t);
+      toast._t = setTimeout(() => el.classList.remove('show'), 3200);
+    }
+
+    function setStatus(s, cls) {
+      const el = $('#status');
+      el.textContent = s;
+      el.className = 'status ' + (cls || '');
+    }
+
+    function markDirty() {
+      if (!dirty) { dirty = true; setStatus('modifiche non salvate', 'dirty'); }
+    }
+
+    // base64 helpers that work with unicode
+    const b64encode = (str) => btoa(unescape(encodeURIComponent(str)));
+    const b64decode = (str) => decodeURIComponent(escape(atob(str.replace(/\n/g, ''))));
+
+    function fileToBase64(file) {
+      return new Promise((resolve, reject) => {
+        const r = new FileReader();
+        r.onload = () => {
+          const s = r.result;
+          const i = s.indexOf(',');
+          resolve(s.slice(i + 1));
+        };
+        r.onerror = reject;
+        r.readAsDataURL(file);
+      });
+    }
+
+    // ─────────────────────────────────────────────
+    // GITHUB API
+    // ─────────────────────────────────────────────
+    async function gh(path, opts = {}) {
+      const url = path.startsWith('http') ? path : GH + path;
+      const res = await fetch(url, {
+        ...opts,
+        headers: {
+          'Authorization': `token ${pat}`,
+          'Accept': 'application/vnd.github+json',
+          'X-GitHub-Api-Version': '2022-11-28',
+          ...(opts.headers || {}),
+        },
+      });
+      if (!res.ok) {
+        const text = await res.text();
+        throw new Error(`GitHub ${res.status}: ${text.slice(0, 200)}`);
+      }
+      const ct = res.headers.get('content-type') || '';
+      return ct.includes('json') ? res.json() : res.text();
+    }
+
+    async function getFile(path) {
+      return gh(`/contents/${encodeURIComponent(path).replace(/%2F/g, '/')}?ref=${BRANCH}`);
+    }
+
+    async function putFile(path, contentBase64, sha, message) {
+      const body = {
+        message: message || `cms: update ${path}`,
+        content: contentBase64,
+        branch: BRANCH,
+      };
+      if (sha) body.sha = sha;
+      return gh(`/contents/${encodeURIComponent(path).replace(/%2F/g, '/')}`, {
+        method: 'PUT',
+        body: JSON.stringify(body),
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
+
+    async function deleteFile(path, sha) {
+      return gh(`/contents/${encodeURIComponent(path).replace(/%2F/g, '/')}`, {
+        method: 'DELETE',
+        body: JSON.stringify({ message: `cms: delete ${path}`, sha, branch: BRANCH }),
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
+
+    async function listDir(path) {
+      try {
+        return await gh(`/contents/${encodeURIComponent(path).replace(/%2F/g, '/')}?ref=${BRANCH}`);
+      } catch (e) {
+        if (String(e).includes('404')) return [];
+        throw e;
+      }
+    }
+
+    async function verifyPat(tok) {
+      const r = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}`, {
+        headers: { 'Authorization': `token ${tok}`, 'Accept': 'application/vnd.github+json' },
+      });
+      if (!r.ok) throw new Error(r.status === 401 ? 'Token non valido' : `Errore ${r.status}`);
+      const data = await r.json();
+      if (!data.permissions || (!data.permissions.push && !data.permissions.admin)) {
+        throw new Error('Il token non ha permessi di scrittura su questo repo');
+      }
+      return data;
+    }
+
+    // ─────────────────────────────────────────────
+    // LOGIN FLOW
+    // ─────────────────────────────────────────────
+    $('#loginForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn = $('#loginBtn');
+      const err = $('#loginError');
+      const tok = $('#patInput').value.trim();
+      err.textContent = '';
+      if (!tok) { err.textContent = 'Inserisci un token'; return; }
+      btn.disabled = true;
+      btn.textContent = 'Verifica…';
+      try {
+        await verifyPat(tok);
+        pat = tok;
+        localStorage.setItem(STORAGE_KEY, tok);
+        startApp();
+      } catch (ex) {
+        err.textContent = ex.message || 'Errore di autenticazione';
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Entra';
+      }
+    });
+
+    $('#logoutBtn').addEventListener('click', () => {
+      if (dirty && !confirm('Ci sono modifiche non salvate. Uscire comunque?')) return;
+      localStorage.removeItem(STORAGE_KEY);
+      pat = null;
+      $('#appShell').classList.remove('ready');
+      $('#loginScreen').style.display = 'grid';
+      $('#patInput').value = '';
+    });
+
+    // ─────────────────────────────────────────────
+    // APP BOOT
+    // ─────────────────────────────────────────────
+    async function startApp() {
+      $('#loginScreen').style.display = 'none';
+      $('#appShell').classList.add('ready');
+      await loadSite();
+      await loadMedia();
+    }
+
+    async function loadSite() {
+      setStatus('caricamento…');
+      try {
+        const file = await getFile(SITE_PATH);
+        siteSha = file.sha;
+        site = JSON.parse(b64decode(file.content));
+        renderForm();
+        dirty = false;
+        setStatus('salvato', 'ok');
+      } catch (e) {
+        setStatus('errore caricamento', 'err');
+        toast(e.message || 'Errore', 'err');
+      }
+    }
+
+    $('#reloadBtn').addEventListener('click', async () => {
+      if (dirty && !confirm('Ci sono modifiche non salvate. Ricaricare dal server?')) return;
+      await loadSite();
+      await loadMedia();
+    });
+
+    // ─────────────────────────────────────────────
+    // TAB SWITCHING
+    // ─────────────────────────────────────────────
+    $$('.sidebar-tab').forEach((tab) => {
+      tab.addEventListener('click', () => {
+        const name = tab.dataset.tab;
+        $$('.sidebar-tab').forEach((t) => t.classList.toggle('active', t === tab));
+        $$('.panel').forEach((p) => p.classList.toggle('active', p.dataset.panel === name));
+        $('#topTitle').textContent = tab.textContent.trim();
+        if (name === 'media') refreshMediaGrid();
+        if (name === 'raw') $('#rawJson').value = JSON.stringify(site, null, 2);
+      });
+    });
+
+    // ─────────────────────────────────────────────
+    // FORM ↔ DATA
+    // ─────────────────────────────────────────────
+    function toLocalInput(iso) {
+      if (!iso) return '';
+      // strip seconds/tz to fit datetime-local
+      const d = new Date(iso);
+      if (isNaN(d)) return '';
+      const pad = (n) => String(n).padStart(2, '0');
+      return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+    }
+    function fromLocalInput(v) {
+      if (!v) return '';
+      return v.length === 16 ? v + ':00' : v;
+    }
+
+    function renderForm() {
+      // Countdown
+      $('#cd_label').value = site.countdown?.label || '';
+      $('#cd_target').value = toLocalInput(site.countdown?.target);
+      $('#cd_endMessage').value = site.countdown?.endMessage || 'OUT NOW';
+      // Subheader
+      $('#sh_kicker').value = site.subheader?.kicker || '';
+      $('#sh_title').value = site.subheader?.title || '';
+      // Nav
+      $('#nv_back').value = site.nav?.back || '';
+      $('#nv_backLink').value = site.nav?.backLink || '';
+      $('#nv_shop').value = site.nav?.shop || '';
+      $('#nv_shopLink').value = site.nav?.shopLink || '';
+      // Menu
+      $('#mn_bottomLeft').value = site.menu?.bottomLeft || '';
+      $('#mn_bottomRight').value = site.menu?.bottomRight || '';
+      renderCardsList();
+      renderMenuList();
+    }
+
+    function readForm() {
+      site.countdown = site.countdown || {};
+      site.countdown.label = $('#cd_label').value;
+      site.countdown.target = fromLocalInput($('#cd_target').value);
+      site.countdown.endMessage = $('#cd_endMessage').value;
+      site.subheader = site.subheader || {};
+      site.subheader.kicker = $('#sh_kicker').value;
+      site.subheader.title = $('#sh_title').value;
+      site.nav = site.nav || {};
+      site.nav.back = $('#nv_back').value;
+      site.nav.backLink = $('#nv_backLink').value;
+      site.nav.shop = $('#nv_shop').value;
+      site.nav.shopLink = $('#nv_shopLink').value;
+      site.menu = site.menu || { items: [] };
+      site.menu.bottomLeft = $('#mn_bottomLeft').value;
+      site.menu.bottomRight = $('#mn_bottomRight').value;
+    }
+
+    // Listen on all top-level inputs for dirty
+    document.addEventListener('input', (e) => {
+      if (e.target.matches('.panel input, .panel textarea, .panel select')) markDirty();
+    });
+
+    // ─────────────────────────────────────────────
+    // CARDS UI
+    // ─────────────────────────────────────────────
+    function renderCardsList() {
+      const list = $('#cardsList');
+      const cards = site.cards || [];
+      if (!cards.length) {
+        list.innerHTML = `<div class="empty">Nessuna card. Clicca <strong>+ Nuova card</strong> per aggiungerne.</div>`;
+        return;
+      }
+      list.innerHTML = cards.map((c, i) => {
+        const thumb = c.image ? `style="background-image:url('${esc(c.image)}')"` : '';
+        const overlay = c.overlay || {};
+        return `
+        <div class="card-item" data-i="${i}">
+          <div class="card-head" data-toggle="${i}">
+            <div class="card-thumb" ${thumb}></div>
+            <div class="card-title-wrap">
+              <div class="card-title">${esc(c.label || 'Senza titolo')}</div>
+              <div class="card-sub">${esc(c.imageFit || 'cover')} · ${c.showLabel ? 'mostra label' : 'no label'}${c.link ? ' · link' : ''}</div>
+            </div>
+            <div class="card-actions" onclick="event.stopPropagation()">
+              <button class="btn-icon" data-move="${i}|-1" title="Sposta su"><svg viewBox="0 0 24 24"><path d="M5 15l7-7 7 7"/></svg></button>
+              <button class="btn-icon" data-move="${i}|1"  title="Sposta giù"><svg viewBox="0 0 24 24"><path d="M5 9l7 7 7-7"/></svg></button>
+              <button class="btn-icon" data-del="${i}" title="Elimina"><svg viewBox="0 0 24 24"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m1 0v14a2 2 0 01-2 2H9a2 2 0 01-2-2V6"/></svg></button>
+              <span class="chev"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></span>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="row">
+              <div class="field">
+                <label>Etichetta</label>
+                <input type="text" data-bind="cards.${i}.label" value="${esc(c.label || '')}" />
+              </div>
+              <div class="field">
+                <label>Link card (vuoto = nessuno)</label>
+                <input type="text" data-bind="cards.${i}.link" value="${esc(c.link || '')}" placeholder="tour.html" />
+              </div>
+            </div>
+
+            <div class="field">
+              <label>Immagine</label>
+              <div class="img-picker">
+                <div class="prev" style="${c.image ? `background-image:url('${esc(c.image)}')` : ''}"></div>
+                <input type="text" data-bind="cards.${i}.image" value="${esc(c.image || '')}" placeholder="URL o media/file.jpg" />
+                <button class="btn btn-ghost" data-pick="${i}">Scegli</button>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="field">
+                <label>Adattamento immagine</label>
+                <select data-bind="cards.${i}.imageFit">
+                  <option value="cover" ${c.imageFit === 'cover' ? 'selected' : ''}>cover (riempi)</option>
+                  <option value="contain" ${c.imageFit === 'contain' ? 'selected' : ''}>contain (intera)</option>
+                </select>
+              </div>
+              <div class="field">
+                <div class="switch-row">
+                  <label style="margin:0;">Mostra etichetta</label>
+                  <div class="switch ${c.showLabel ? 'on' : ''}" data-toggle-bool="cards.${i}.showLabel"></div>
+                </div>
+              </div>
+            </div>
+
+            <hr class="hr" />
+            <div class="section-title">Overlay (opzionale)</div>
+            <div class="row">
+              <div class="field">
+                <label>Caption</label>
+                <input type="text" data-bind="cards.${i}.overlay.caption" value="${esc(overlay.caption || '')}" placeholder="Lascia vuoto per nessun overlay" />
+              </div>
+              <div class="field">
+                <label>Testo bottone</label>
+                <input type="text" data-bind="cards.${i}.overlay.buttonText" value="${esc(overlay.buttonText || '')}" placeholder="SHOP NOW" />
+              </div>
+            </div>
+            <div class="field">
+              <label>Link bottone</label>
+              <input type="text" data-bind="cards.${i}.overlay.buttonLink" value="${esc(overlay.buttonLink || '')}" placeholder="shop.html" />
+            </div>
+          </div>
+        </div>`;
+      }).join('');
+      bindCardEvents();
+    }
+
+    function bindCardEvents() {
+      $$('#cardsList .card-head').forEach((h) => {
+        h.addEventListener('click', (e) => {
+          if (e.target.closest('.card-actions')) return;
+          h.parentElement.classList.toggle('open');
+        });
+      });
+      $$('#cardsList [data-bind]').forEach((inp) => {
+        inp.addEventListener('input', () => writeBind(inp));
+      });
+      $$('#cardsList [data-toggle-bool]').forEach((sw) => {
+        sw.addEventListener('click', () => {
+          sw.classList.toggle('on');
+          setPath(site, sw.dataset.toggleBool, sw.classList.contains('on'));
+          markDirty();
+          // refresh sub line
+          const item = sw.closest('.card-item');
+          const i = +item.dataset.i;
+          const c = site.cards[i];
+          item.querySelector('.card-sub').textContent =
+            `${c.imageFit || 'cover'} · ${c.showLabel ? 'mostra label' : 'no label'}${c.link ? ' · link' : ''}`;
+        });
+      });
+      $$('#cardsList [data-move]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const [i, dir] = btn.dataset.move.split('|').map(Number);
+          const ni = i + dir;
+          if (ni < 0 || ni >= site.cards.length) return;
+          const [item] = site.cards.splice(i, 1);
+          site.cards.splice(ni, 0, item);
+          renderCardsList();
+          markDirty();
+        });
+      });
+      $$('#cardsList [data-del]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const i = +btn.dataset.del;
+          if (!confirm(`Eliminare la card "${site.cards[i].label}"?`)) return;
+          site.cards.splice(i, 1);
+          renderCardsList();
+          markDirty();
+        });
+      });
+      $$('#cardsList [data-pick]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          openPicker((url) => {
+            const i = +btn.dataset.pick;
+            site.cards[i].image = url;
+            renderCardsList();
+            markDirty();
+          });
+        });
+      });
+    }
+
+    function writeBind(inp) {
+      const val = inp.tagName === 'SELECT' ? inp.value : (inp.type === 'checkbox' ? inp.checked : inp.value);
+      setPath(site, inp.dataset.bind, val);
+      markDirty();
+    }
+
+    function setPath(obj, path, val) {
+      const parts = path.split('.');
+      let cur = obj;
+      for (let i = 0; i < parts.length - 1; i++) {
+        const k = parts[i].match(/^\d+$/) ? +parts[i] : parts[i];
+        if (cur[k] == null) cur[k] = (typeof parts[i+1] === 'string' && /^\d+$/.test(parts[i+1])) ? [] : {};
+        cur = cur[k];
+      }
+      const last = parts[parts.length - 1];
+      const lk = last.match(/^\d+$/) ? +last : last;
+      // Clean up empty overlays
+      if (path.endsWith('.overlay.caption') || path.endsWith('.overlay.buttonText') || path.endsWith('.overlay.buttonLink')) {
+        cur[lk] = val;
+        // If all overlay fields are empty, set overlay to null
+        if (!cur.caption && !cur.buttonText && !cur.buttonLink) {
+          const parentPath = path.split('.').slice(0, -1).join('.');
+          setPath(obj, parentPath, null);
+          return;
+        }
+      } else {
+        cur[lk] = val;
+      }
+    }
+
+    $('#addCardBtn').addEventListener('click', () => {
+      site.cards = site.cards || [];
+      site.cards.push({
+        label: 'NUOVA',
+        showLabel: true,
+        image: '',
+        imageFit: 'cover',
+        link: '',
+        overlay: null,
+      });
+      renderCardsList();
+      markDirty();
+      // Scroll to new card
+      const items = $$('#cardsList .card-item');
+      if (items.length) {
+        items[items.length - 1].classList.add('open');
+        items[items.length - 1].scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    });
+
+    // ─────────────────────────────────────────────
+    // MENU ITEMS UI
+    // ─────────────────────────────────────────────
+    function renderMenuList() {
+      const list = $('#menuItemsList');
+      const items = (site.menu && site.menu.items) || [];
+      list.innerHTML = items.map((it, i) => `
+        <div class="item-row" data-mi="${i}">
+          <input type="text" data-mb="${i}|label" value="${esc(it.label || '')}" placeholder="Etichetta" />
+          <input type="text" data-mb="${i}|link"  value="${esc(it.link || '')}"  placeholder="Link (es. shop.html)" />
+          <div class="item-actions">
+            <button class="btn-icon" data-mmove="${i}|-1" title="Su"><svg viewBox="0 0 24 24"><path d="M5 15l7-7 7 7"/></svg></button>
+            <button class="btn-icon" data-mmove="${i}|1"  title="Giù"><svg viewBox="0 0 24 24"><path d="M5 9l7 7 7-7"/></svg></button>
+            <button class="btn-icon" data-mdel="${i}" title="Elimina"><svg viewBox="0 0 24 24"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg></button>
+          </div>
+        </div>
+      `).join('') || `<div class="empty">Nessuna voce. Aggiungine una.</div>`;
+      $$('#menuItemsList [data-mb]').forEach((inp) => {
+        inp.addEventListener('input', () => {
+          const [i, key] = inp.dataset.mb.split('|');
+          site.menu.items[+i][key] = inp.value;
+          markDirty();
+        });
+      });
+      $$('#menuItemsList [data-mmove]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const [i, dir] = btn.dataset.mmove.split('|').map(Number);
+          const ni = i + dir;
+          if (ni < 0 || ni >= site.menu.items.length) return;
+          const [it] = site.menu.items.splice(i, 1);
+          site.menu.items.splice(ni, 0, it);
+          renderMenuList();
+          markDirty();
+        });
+      });
+      $$('#menuItemsList [data-mdel]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const i = +btn.dataset.mdel;
+          site.menu.items.splice(i, 1);
+          renderMenuList();
+          markDirty();
+        });
+      });
+    }
+
+    $('#addMenuItemBtn').addEventListener('click', () => {
+      site.menu = site.menu || { items: [] };
+      site.menu.items = site.menu.items || [];
+      site.menu.items.push({ label: 'Nuovo', link: '#' });
+      renderMenuList();
+      markDirty();
+    });
+
+    // ─────────────────────────────────────────────
+    // MEDIA
+    // ─────────────────────────────────────────────
+    async function loadMedia() {
+      try {
+        const items = await listDir(MEDIA_DIR);
+        mediaCache = Array.isArray(items) ? items.filter((x) => x.type === 'file') : [];
+        refreshMediaGrid();
+      } catch (e) {
+        mediaCache = [];
+      }
+    }
+
+    function isImage(name) { return /\.(jpe?g|png|webp|gif|avif|svg)$/i.test(name); }
+    function isVideo(name) { return /\.(mp4|webm|mov)$/i.test(name); }
+
+    function mediaTile(item, onPick) {
+      const path = `${MEDIA_DIR}/${item.name}`;
+      const img = isImage(item.name) ? path : (isVideo(item.name) ? '' : '');
+      const bg = img ? `style="background-image:url('${esc(img)}')"` : '';
+      const icon = !img ? `<div style="display:grid;place-items:center;height:100%;color:var(--fg-faint);font-size:11px;">${esc(item.name.split('.').pop().toUpperCase())}</div>` : '';
+      const tile = document.createElement('div');
+      tile.className = 'media-tile';
+      tile.innerHTML = `
+        <div class="media-img" ${bg}>${icon}</div>
+        <div class="media-info">
+          <span class="media-name" title="${esc(item.name)}">${esc(item.name)}</span>
+          ${onPick ? '' : `<button class="btn-icon" data-mdrm="${esc(item.name)}|${esc(item.sha)}" title="Elimina"><svg viewBox="0 0 24 24"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg></button>`}
+        </div>`;
+      if (onPick) {
+        tile.querySelector('.media-img').addEventListener('click', () => onPick(path));
+        tile.style.cursor = 'pointer';
+      }
+      return tile;
+    }
+
+    function refreshMediaGrid() {
+      const grid = $('#mediaGrid');
+      grid.innerHTML = '';
+      if (!mediaCache || !mediaCache.length) {
+        grid.innerHTML = `<div class="empty" style="grid-column: 1/-1;">Nessun media caricato</div>`;
+        return;
+      }
+      mediaCache.forEach((it) => grid.appendChild(mediaTile(it, null)));
+      $$('#mediaGrid [data-mdrm]').forEach((btn) => {
+        btn.addEventListener('click', async () => {
+          const [name, sha] = btn.dataset.mdrm.split('|');
+          if (!confirm(`Eliminare "${name}" dal repository?`)) return;
+          try {
+            await deleteFile(`${MEDIA_DIR}/${name}`, sha);
+            toast('Eliminato', 'ok');
+            await loadMedia();
+          } catch (e) {
+            toast(e.message, 'err');
+          }
+        });
+      });
+    }
+
+    function openPicker(onPick) {
+      const grid = $('#pickerGrid');
+      grid.innerHTML = '';
+      const imgs = (mediaCache || []).filter((it) => isImage(it.name));
+      if (!imgs.length) {
+        grid.innerHTML = `<div class="empty" style="grid-column:1/-1;">Nessuna immagine caricata. Vai nel tab Media per caricarne.</div>`;
+      } else {
+        imgs.forEach((it) => grid.appendChild(mediaTile(it, (path) => {
+          onPick(path);
+          $('#pickerModal').classList.remove('open');
+        })));
+      }
+      $('#pickerModal').classList.add('open');
+    }
+
+    $('#pickerCloseBtn').addEventListener('click', () => $('#pickerModal').classList.remove('open'));
+    $('#pickerModal').addEventListener('click', (e) => {
+      if (e.target === $('#pickerModal')) $('#pickerModal').classList.remove('open');
+    });
+
+    // Upload
+    const upZone = $('#uploadZone');
+    const upInput = $('#uploadInput');
+    upInput.addEventListener('change', () => handleUpload(upInput.files));
+    ['dragenter', 'dragover'].forEach((ev) => {
+      upZone.addEventListener(ev, (e) => { e.preventDefault(); upZone.classList.add('drag'); });
+    });
+    ['dragleave', 'drop'].forEach((ev) => {
+      upZone.addEventListener(ev, (e) => { e.preventDefault(); upZone.classList.remove('drag'); });
+    });
+    upZone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      handleUpload(e.dataTransfer.files);
+    });
+
+    async function handleUpload(files) {
+      if (!files || !files.length) return;
+      for (const f of files) {
+        try {
+          setStatus(`upload ${f.name}…`, 'saving');
+          const b64 = await fileToBase64(f);
+          const safeName = f.name.replace(/[^\w.\-]+/g, '_');
+          await putFile(`${MEDIA_DIR}/${safeName}`, b64, null, `cms: upload ${safeName}`);
+          toast(`Caricato ${safeName}`, 'ok');
+        } catch (e) {
+          toast(`Errore upload ${f.name}: ${e.message}`, 'err');
+        }
+      }
+      setStatus('salvato', 'ok');
+      await loadMedia();
+      upInput.value = '';
+    }
+
+    // ─────────────────────────────────────────────
+    // RAW JSON
+    // ─────────────────────────────────────────────
+    $('#applyRawBtn').addEventListener('click', () => {
+      try {
+        const parsed = JSON.parse($('#rawJson').value);
+        site = parsed;
+        renderForm();
+        markDirty();
+        toast('JSON applicato. Pubblica per salvare.', 'ok');
+      } catch (e) {
+        toast('JSON non valido: ' + e.message, 'err');
+      }
+    });
+
+    // ─────────────────────────────────────────────
+    // SAVE
+    // ─────────────────────────────────────────────
+    $('#saveBtn').addEventListener('click', async () => {
+      readForm();
+      const btn = $('#saveBtn');
+      btn.disabled = true;
+      setStatus('pubblico…', 'saving');
+      try {
+        const content = JSON.stringify(site, null, 2) + '\n';
+        const res = await putFile(SITE_PATH, b64encode(content), siteSha, `cms: update site content`);
+        siteSha = res.content.sha;
+        dirty = false;
+        setStatus('pubblicato', 'ok');
+        toast('Modifiche pubblicate', 'ok');
+      } catch (e) {
+        setStatus('errore', 'err');
+        toast(e.message || 'Errore di pubblicazione', 'err');
+      } finally {
+        btn.disabled = false;
+      }
+    });
+
+    // ─────────────────────────────────────────────
+    // KEYBOARD SHORTCUTS
+    // ─────────────────────────────────────────────
+    document.addEventListener('keydown', (e) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 's') {
+        e.preventDefault();
+        if (pat) $('#saveBtn').click();
+      }
+    });
+
+    // Warn before leaving with unsaved changes
+    window.addEventListener('beforeunload', (e) => {
+      if (dirty) { e.preventDefault(); e.returnValue = ''; }
+    });
+
+    // ─────────────────────────────────────────────
+    // AUTO-LOGIN
+    // ─────────────────────────────────────────────
+    (async function autoLogin() {
+      const stored = localStorage.getItem(STORAGE_KEY);
+      if (!stored) return;
+      try {
+        await verifyPat(stored);
+        pat = stored;
+        startApp();
+      } catch (e) {
+        localStorage.removeItem(STORAGE_KEY);
+      }
+    })();
+
+  })();
+  </script>
 </body>
 </html>

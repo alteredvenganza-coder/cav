@@ -1,7 +1,8 @@
 {
   "countdown": {
     "label": "CAV McKNIGHT",
-    "target": "2026-05-22T00:00:00"
+    "target": "2026-05-22T00:00:00",
+    "endMessage": "OUT NOW"
   },
   "subheader": {
     "kicker": "Explore",
@@ -9,13 +10,64 @@
   },
   "nav": {
     "back": "BACK",
-    "shop": "SHOP"
+    "backLink": "#",
+    "shop": "SHOP",
+    "shopLink": "shop.html"
   },
   "cards": [
-    { "label": "4X4 VIDEO" },
-    { "label": "SHOP" },
-    { "label": "EXPERIENCE" },
-    { "label": "TOUR" },
-    { "label": "WORLD" }
-  ]
+    {
+      "label": "4X4 VIDEO",
+      "showLabel": false,
+      "image": "https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c17?w=800&q=80",
+      "imageFit": "cover",
+      "link": "",
+      "overlay": null
+    },
+    {
+      "label": "SHOP",
+      "showLabel": false,
+      "image": "tshirt.png",
+      "imageFit": "contain",
+      "link": "",
+      "overlay": {
+        "caption": "The Road For Cav McKnigh",
+        "buttonText": "SHOP NOW",
+        "buttonLink": "shop.html"
+      }
+    },
+    {
+      "label": "EXPERIENCE",
+      "showLabel": true,
+      "image": "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=800&q=80",
+      "imageFit": "cover",
+      "link": "",
+      "overlay": null
+    },
+    {
+      "label": "TOUR",
+      "showLabel": true,
+      "image": "https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?w=800&q=80",
+      "imageFit": "cover",
+      "link": "",
+      "overlay": null
+    },
+    {
+      "label": "WORLD",
+      "showLabel": true,
+      "image": "https://images.unsplash.com/photo-1501386761578-eaa54b2b27a6?w=800&q=80",
+      "imageFit": "cover",
+      "link": "",
+      "overlay": null
+    }
+  ],
+  "menu": {
+    "items": [
+      { "label": "Shop",  "link": "shop.html" },
+      { "label": "Tour",  "link": "tour.html" },
+      { "label": "World", "link": "world.html" },
+      { "label": "Album", "link": "album.html" }
+    ],
+    "bottomLeft": "Email",
+    "bottomRight": "Text"
+  }
 }
